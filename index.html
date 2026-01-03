@@ -140,6 +140,7 @@
             .panel-toggle { padding:5px 8px; }
         }
     </style>
+    
 </head>
 <body>
 
@@ -550,6 +551,28 @@
 
     initCollapsible('panel-opsi-tambahan');
   })();
+</script>
+
+    
+    // Pastikan script ini ada di dalam <head> atau sebelum tag </body> website Sensei
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<script>
+function kirimDataKeBot() {
+    // Contoh mengambil data dari input di website Sensei
+    const rincian = document.getElementById("rincianTarif").value; // Ambil rincian barang
+    const harga = document.getElementById("hasilTarif").value;     // Ambil total harga ongkir
+
+    // Gabungkan data dalam format string yang mudah dibaca bot
+    // Kita gunakan pemisah unik, misalnya "|"
+    const dataString = harga + "|" + rincian;
+
+    // Kirim data ke Bot Telegram
+    Telegram.WebApp.sendData(dataString);
+    
+    // Tutup WebApp otomatis
+    Telegram.WebApp.close();
+}
 </script>
 </body>
 </html>
