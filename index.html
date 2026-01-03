@@ -268,9 +268,13 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
 (function(){
-  // 1. Init Telegram WebApp
   const tg = window.Telegram.WebApp;
   tg.expand();
+
+  // --- BAGIAN BARU: AMBIL ID DARI LINK URL ---
+  const urlParams = new URLSearchParams(window.location.search);
+  const orderID = urlParams.get('oid') || "0"; // Jika tidak ada ID, default 0
+  // ------------------------------------------
 
   // 2. Definisi Variabel DOM
   const root=document.getElementById('kurir-widget');
@@ -334,11 +338,15 @@
   }
 
   // 5. Fungsi Kirim Data (Dipanggil saat tombol Hijau)
+  // --- UPDATE FUNGSI KIRIM: SERTAKAN ID DI BELAKANG ---
   function kirimKeTelegram(hargaBersih, rincianBersih) {
       if(!hargaBersih || hargaBersih == "0") return;
-      const dataString = hargaBersih + "|" + rincianBersih;
-      tg.sendData(dataString); // Kirim Data
-      tg.close(); // Tutup WebApp
+      
+      // Format Baru: Harga | Rincian | ID_ORDER
+      const dataString = hargaBersih + "|" + rincianBersih + "|" + orderID;
+      
+      tg.sendData(dataString); 
+      tg.close(); 
   }
 
   // 6. MAIN EVENT LISTENER (Tombol Klik)
@@ -346,15 +354,13 @@
     
     // A. Cek apakah tombol sedang mode KIRIM (Hijau)
     if(btnHitung.classList.contains('ready-to-send')) {
-       // Ambil nilai saat ini
-       const hargaTeks = hasilTarifEl.innerText;
+       const hargaTeks = document.getElementById('hasilTarif').innerText;
        const hargaBersih = hargaTeks.replace(/[^0-9]/g, '');
-       const rincianTeks = rincianEl.innerText.replace(/\n/g, " | ");
+       const rincianTeks = document.getElementById('rincianTarif').innerText.replace(/\n/g, " , ");
        
        kirimKeTelegram(hargaBersih, rincianTeks);
-       return; // Selesai
+       return;
     }
-
     // B. Mode HITUNG (Biru)
     rincianEl.innerHTML='';
     hasilTarifEl.textContent='Rp -';
@@ -477,6 +483,6 @@
 
 })();
 </script>
-    bbcc
+    bbccdd
 </body>
 </html>
