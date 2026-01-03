@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Pendaftaran</title>
+    <style>
+        /* CSS RESET & VARIABLES */
+        :root {
+            --primary-color: #2563eb; /* Biru Profesional */
+            --bg-color: #f3f4f6;
+            --text-color: #1f2937;
+            --border-color: #d1d5db;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* CONTAINER FORM */
+        .form-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-header h2 {
+            color: var(--text-color);
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* INPUT GROUPS */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .required::after {
+            content: " *";
+            color: red;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background-color: #fff;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* DROPDOWN STYLING */
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+
+        /* BUTTON */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* HIDDEN SECTIONS */
+        .hidden {
+            display: none;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 480px) {
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <div class="form-header">
+        <h2>Formulir Data Diri</h2>
+        <p style="color: #6b7280; font-size: 14px;">Silakan lengkapi data di bawah ini.</p>
+    </div>
+
+    <form id="biodataForm">
+        <div class="form-group">
+            <label for="nama" class="required">Nama Lengkap</label>
+            <input type="text" id="nama" class="form-control" placeholder="Masukkan nama lengkap Anda" required>
+        </div>
+
+        <div class="form-group">
+            <label for="whatsapp" class="required">No. Whatsapp</label>
+            <input type="tel" id="whatsapp" class="form-control" placeholder="Contoh: 081234567890" pattern="[0-9]*" inputmode="numeric" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            <small style="color: #6b7280; font-size: 12px;">Hanya angka.</small>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email (Opsional)</label>
+            <input type="email" id="email" class="form-control" placeholder="contoh@email.com">
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+        <h3 style="font-size: 16px; margin-bottom: 15px; color: #374151;">Alamat Domisili</h3>
+
+        <div class="form-group">
+            <label>Negara</label>
+            <input type="text" class="form-control" value="Indonesia" disabled style="background-color: #f9fafb; color: #6b7280;">
+        </div>
+
+        <div class="form-group">
+            <label for="provinsi">Provinsi</label>
+            <select id="provinsi" class="form-control">
+                <option value="Sulawesi Selatan" selected>Sulawesi Selatan</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="kota">Kota / Kabupaten</label>
+            <select id="kota" class="form-control" onchange="checkKota()">
+                <option value="" disabled selected>Pilih Kota/Kabupaten</option>
+                <option value="Kota Makassar">Kota Makassar</option>
+                <option value="Kota Pare-Pare">Kota Pare-Pare</option>
+                <option value="Kabupaten Pinrang">Kabupaten Pinrang</option>
+                <option value="Kabupaten Sidrap">Kabupaten Sidrap</option>
+                <option value="Kabupaten Enrekang">Kabupaten Enrekang</option>
+            </select>
+        </div>
+
+        <div id="pinrangArea" class="hidden">
+            <div class="form-group">
+                <label for="kecamatan">Kecamatan</label>
+                <select id="kecamatan" class="form-control" onchange="loadDesa()">
+                    <option value="" disabled selected>Pilih Kecamatan</option>
+                    </select>
+            </div>
+
+            <div class="form-group">
+                <label for="desa">Kelurahan / Desa</label>
+                <select id="desa" class="form-control">
+                    <option value="" disabled selected>Pilih Kelurahan/Desa</option>
+                    </select>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit">Kirim Data</button>
+    </form>
+</div>
+
+<script>
+    // DATA WILAYAH PINRANG (Sudah dibersihkan dari kode angka)
+    const dataPinrang = {
+        "Kecamatan Matirro Sompe": [
+            "Kelurahan Langnga", "Kelurahan Pallameang", "Desa Massulowalie", 
+            "Desa Mattombong", "Desa Mattongang Tongang", "Desa Patobong", 
+            "Desa Samaenre", "Desa Mattirotasi", "Desa Siwolong Polong"
+        ],
+        "Kecamatan Suppa": [
+            "Kelurahan Watang Suppa", "Kelurahan Tellumpanua", "Desa Lero", 
+            "Desa Watang Pulu", "Desa Maritengngae", "Desa Tasiwalie", 
+            "Desa Wiringtasi", "Desa Lotang Salo", "Desa Ujung Labuang", "Desa Polewali"
+        ],
+        "Kecamatan Mattiro Bulu": [
+            "Kelurahan Manarang", "Kelurahan Padaidi", "Desa Pananrang", 
+            "Desa Padakkalawa", "Desa Marannu", "Desa Alitta", 
+            "Desa Padaelo", "Desa Bunga", "Desa Makkawaru"
+        ],
+        "Kecamatan Watang Sawito": [
+            "Kelurahan Jaya", "Kelurahan Sawito", "Kelurahan Maccoralaie", 
+            "Kelurahan Penrang", "Kelurahan Salo", "Kelurahan Bentengnge", 
+            "Kelurahan Sipatokkong", "Kelurahan Siparappe"
+        ],
+        "Kecamatan Patampanua": [
+            "Kelurahan Benteng", "Kelurahan Teppo", "Kelurahan Tonyamang", 
+            "Kelurahan Maccirinna", "Desa Leppangang", "Desa Malimpung", 
+            "Desa Mattiroade", "Desa Sipatuo", "Desa Padangloang", 
+            "Desa Pincara", "Desa Masolo"
+        ],
+        "Kecamatan Duampanua": [
+            "Kelurahan Pekkabata", "Kelurahan Tatae", "Kelurahan Lampa", 
+            "Kelurahan Data", "Kelurahan Bittoeng", "Desa Kaballangan", 
+            "Desa Paria", "Desa Kaliang", "Desa Battusawe", 
+            "Desa Maroneng", "Desa Katomporang", "Desa Bungi", 
+            "Desa Massewae", "Desa Bababinanga", "Desa Barugae"
+        ],
+        "Kecamatan Lembang": [
+            "Kelurahan Taddokong", "Kelurahan Betteng", "Desa Binanga Karaeng", 
+            "Desa Rajang", "Desa Letta", "Desa Ulusaddang", 
+            "Desa Suppirang", "Desa Basseang", "Desa Kariango", 
+            "Desa Benteng Paremba", "Desa Pakeng", "Desa Lembang Mesakada", 
+            "Desa Sali Sali", "Desa Sabbang Paru", "Desa Bakaru", "Desa Pangaparang"
+        ],
+        "Kecamatan Cempa": [
+            "Kelurahan Cempa", "Desa Mangki", "Desa Matunru Tunrue", 
+            "Desa Sikkuale", "Desa Tadangpalie", "Desa Salipolo", "Desa Tanra Tuo"
+        ],
+        "Kecamatan Tiroang": [
+            "Kelurahan Pammase", "Kelurahan Marawi", "Kelurahan Pakkie", 
+            "Kelurahan Tiroang", "Kelurahan Mattiro Deceng"
+        ],
+        "Kecamatan Lansirang": [
+            "Kelurahan Lansirang", "Desa Samaulue", "Desa Mallongi-longi", 
+            "Desa Amassangeng", "Desa Barang Palie", "Desa Waetuoe", "Desa Lerang"
+        ],
+        "Kecamatan Paleteang": [
+            "Kelurahan Pacongang", "Kelurahan Macinnae", "Kelurahan Temmassarangnge", 
+            "Kelurahan Mamminasae", "Kelurahan Laleng Bata", "Kelurahan Benteng Sawito"
+        ],
+        "Kecamatan Batu Lappa": [
+            "Desa Batu Lappa", "Kelurahan Kassa", "Desa Tapporang", 
+            "Desa Kaseralau", "Desa Watang Kassa"
+        ]
+    };
+
+    const kotaSelect = document.getElementById('kota');
+    const pinrangArea = document.getElementById('pinrangArea');
+    const kecamatanSelect = document.getElementById('kecamatan');
+    const desaSelect = document.getElementById('desa');
+
+    // Logic saat memilih Kota
+    function checkKota() {
+        const selectedKota = kotaSelect.value;
+        
+        if (selectedKota === "Kabupaten Pinrang") {
+            pinrangArea.classList.remove('hidden');
+            populateKecamatan();
+        } else {
+            pinrangArea.classList.add('hidden');
+            // Reset pilihan jika bukan Pinrang
+            kecamatanSelect.innerHTML = '<option value="" disabled selected>Pilih Kecamatan</option>';
+            desaSelect.innerHTML = '<option value="" disabled selected>Pilih Kelurahan/Desa</option>';
+        }
+    }
+
+    // Mengisi Dropdown Kecamatan
+    function populateKecamatan() {
+        kecamatanSelect.innerHTML = '<option value="" disabled selected>Pilih Kecamatan</option>';
+        desaSelect.innerHTML = '<option value="" disabled selected>Pilih Kelurahan/Desa</option>'; // Reset Desa
+
+        for (let kec in dataPinrang) {
+            let option = document.createElement('option');
+            option.value = kec;
+            option.text = kec;
+            kecamatanSelect.appendChild(option);
+        }
+    }
+
+    // Logic saat memilih Kecamatan (Mengisi Desa)
+    function loadDesa() {
+        const selectedKec = kecamatanSelect.value;
+        desaSelect.innerHTML = '<option value="" disabled selected>Pilih Kelurahan/Desa</option>';
+
+        if (selectedKec && dataPinrang[selectedKec]) {
+            dataPinrang[selectedKec].forEach(function(desa) {
+                let option = document.createElement('option');
+                option.value = desa;
+                option.text = desa;
+                desaSelect.appendChild(option);
+            });
+        }
+    }
+
+    // Submit Handler (Contoh Alert)
+    document.getElementById('biodataForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('Data berhasil disimpan! (Ini simulasi)');
+    });
+</script>
+
+</body>
+</html>
