@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Ongkir Kurir</title>
+    <style>
+        /* --- CSS RESET & BASE STYLES --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f6f8; /* Background halaman luar widget */
+            font-family: "Helvetica Neue", Arial, sans-serif;
+        }
+
+        /* Gaya Input bawaan (Disalin dari kode asli) */
+        input {
+            writing-mode: horizontal-tb !important;
+            color: fieldtext;
+            letter-spacing: normal;
+            word-spacing: normal;
+            line-height: normal;
+            text-transform: none;
+            text-indent: 0px;
+            text-shadow: none;
+            display: inline-block;
+            text-align: start;
+            appearance: auto;
+            -webkit-rtl-ordering: logical;
+            cursor: text;
+            background-color: field;
+            margin: 0em;
+            padding: 1px 2px;
+            border-width: 2px;
+            border-style: inset;
+            border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+            border-image: initial;
+        }
+        input[type="checkbox" i] {
+            background-color: initial;
+            cursor: default;
+            appearance: auto;
+            box-sizing: border-box;
+            margin: 3px 3px 3px 4px;
+            padding: initial;
+            border: initial;
+        }
+
+        /* --- WIDGET UTAMA --- */
+        /* Scoped - hanya mempengaruhi elemen di dalam #kurir-widget */
+        #kurir-widget, #kurir-widget * { box-sizing: border-box; }
+
+        #kurir-widget { 
+            max-width:720px; 
+            margin:20px auto; 
+            font-family: "Helvetica Neue", Arial, sans-serif; 
+            padding:0; 
+            background: #fff; /* Tambahan agar widget punya background putih di halaman kosong */
+        }
+        
+        #kurir-widget .card {
+            overflow: hidden;
+            border: none;
+            padding: 15px; /* Tambahan padding agar tidak mepet di desktop */
+        }
+        #kurir-widget h2 { margin:0 0 14px 0; font-size:20px; text-align:center; color:#1f2d3d; }
+        #kurir-widget .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+        #kurir-widget .col { flex:1 1 200px; min-width:160px; }
+        #kurir-widget .form-group { margin-bottom:14px; }
+        #kurir-widget label { display:block; font-weight:600; margin-bottom:6px; color:#3b4a59; font-size:14px; }
+        #kurir-widget input[type="number"], #kurir-widget input[type="text"], #kurir-widget select {
+            width:100%; padding:10px 12px; border-radius:8px; border:1px solid #dfe7ef; font-size:14px; background:#fff;
+        }
+        #kurir-widget input[type="number"]:disabled { background:#f4f6f8; color:#8a98a6; cursor:not-allowed; }
+        #kurir-widget .muted { font-size:12px; color:#7b8794; margin-top:4px; }
+        #kurir-widget .inline { display:inline-flex; gap:12px; align-items:center; flex-wrap:wrap; }
+        #kurir-widget .checkbox-label, #kurir-widget .radio-label { display:flex; gap:8px; align-items:center; font-weight:500; color:#2f3f4f; }
+        
+        /* Button: full width, no shadow */
+        #kurir-widget .cek-button {
+            display:block; width:100%; padding:12px; background:#2476f7; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;
+        }
+        #kurir-widget .cek-button:hover { background:#0f63e6; }
+        #kurir-widget .tarif { margin-top:18px; font-size:18px; font-weight:800; color:#17325a; }
+        #kurir-widget .rincian { margin-top:12px; font-size:14px; color:#334455; line-height:1.5; }
+        #kurir-widget .small { font-size:12px; color:#7b8794; }
+        #kurir-widget .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        #kurir-widget .helper { font-size:13px; color:#667583; margin-top:6px; }
+
+        /* --- COLLAPSIBLE PANEL --- */
+        .panel {
+            border:1px solid #e6eef6;
+            border-radius:8px;
+            background:#fbfdff;
+            margin:10px 0;
+            overflow:visible;
+        }
+        .panel-header {
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            cursor:pointer;
+            user-select:none;
+            gap:12px;
+            padding: 10px; /* Diperbaiki sedikit paddingnya */
+            margin-bottom: 0; /* Diatur oleh JS nanti */
+            border-bottom: 1px dashed #ccc;
+        }
+        .panel-title { font-weight:600; color: #DC143C; }
+        .panel-toggle {
+            border:1px solid #cfe8ff;
+            background:transparent;
+            padding:6px 10px;
+            border-radius:6px;
+            font-weight:600;
+            cursor:pointer;
+        }
+
+        .panel-content {
+            padding: 10px;
+            transition: max-height 280ms ease, padding 200ms ease;
+            overflow:hidden;
+            max-height:2000px; /* cukup besar untuk show */
+        }
+        .panel.collapsed .panel-content {
+            max-height:0;
+            padding-top:0;
+            padding-bottom:0;
+            border-top: none;
+        }
+        
+        #kurir-widget .tandaku {color: #DC143C}
+        #kurir-widget .checkbox-label{font-weight:bold}
+
+        /* MOBILE: full-bleed feel inside blog/page */
+        @media (max-width:640px) {
+            #kurir-widget { max-width:100%; margin:0; padding:0; }
+            #kurir-widget .card { border-radius:0; padding:10px; border-left:0; border-right:0; }
+            #kurir-widget h2 { font-size:18px; }
+            .panel-toggle { padding:5px 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<div aria-labelledby="kurir-title" id="kurir-widget" style="width: 100%;">
+
+  <div aria-label="Kalkulator Ongkir" class="card" role="region">
+    <h2 id="kurir-title">Cek Ongkir</h2>
+    <div class="form-group" style="background: rgb(251, 253, 255); border-radius: 8px; border: 1px solid rgb(238, 244, 251); padding: 10px;">
+      <div class="inline">
+        <label class="radio-label"><input checked="" name="modePerhitungan" type="radio" value="single" /> Satu Titik</label>
+        <label class="radio-label"><input name="modePerhitungan" type="radio" value="multi" /> Beberapa Titik (maks 3)</label>
+      </div>
+      <div class="small" style="margin-top: 8px;">Pilih <strong>Satu Titik</strong> untuk input jarak biasa, atau <strong>Beberapa Titik</strong></div>
+    </div>
+
+    <div class="form-group" id="singlePointInput">
+      <label>Jarak tempuh (titik jemput - titik antar)</label>
+      <input id="jarak" placeholder="Contoh: 2" type="number" />
+    </div>
+
+    <div class="form-group" id="multiPointInputs" style="display: none;">
+      <label>Jarak total (km)</label>
+      <input id="jarakMulti" placeholder="Contoh: 5" type="number" />
+
+      <div class="grid-2" style="margin-top: 10px;">
+        <div>
+          <label><span class="tandaku">*</span>Pesanan Jadi / Online</label>
+          <input id="titikOnline" placeholder="Jumlah titik (×Rp2.000, selanjutnya ×Rp3.000)" type="number" />
+        </div>
+        <div>
+          <label><span class="tandaku">*</span>Pesan Langsung (Offline)</label>
+          <input id="titikOffline" placeholder="Jumlah titik (×Rp5.000, selanjutnya ×Rp5.000)" type="number" />
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label><span class="tandaku">*</span>Titik Jemput</label>
+      <div class="inline">
+        <label class="radio-label"><input checked="" name="zona" type="radio" value="0" /> Zona 0</label>
+        <label class="radio-label"><input name="zona" type="radio" value="1" /> Zona 1 (+Rp2.000)</label>
+        <label class="radio-label"><input name="zona" type="radio" value="luar" /> Luar Zona</label>
+      </div>
+      <div style="margin-top: 8px;">
+        <input id="jarakZonaLuar" placeholder="Jarak dari batas kota (km) — untuk Luar Zona" style="display: none;" type="number" />
+        <div class="small">Pilih Luar Zona jika titik jemput diluar Zona 1.</div>
+      </div>
+    </div>
+
+
+    <div class="form-group">
+      <label><span class="tandaku">*</span>Waktu tunggu (menit)</label>
+      <input id="waktuTunggu" placeholder="Masukkan menit (contoh: 15)" type="number" />
+      <div class="helper">+Rp2.000 / 10 menit</div>
+    </div>
+     
+<div class="panel collapsed" id="panel-opsi-tambahan">
+  <div aria-controls="panel-opsi-tambahan-content" aria-expanded="false" class="panel-header" role="button" tabindex="0">
+    <div class="panel-title">Lainnya</div>
+    <button aria-label="Toggle Opsi Tambahan" class="panel-toggle panel-toggle-btn" type="button">Tampilkan</button>
+  </div>
+
+  <div aria-hidden="true" class="panel-content" id="panel-opsi-tambahan-content">
+    <div class="form-group">
+      <label><span class="tandaku">*</span>Cuaca (opsional)</label>
+      <div class="inline">
+        <label class="radio-label"><input checked="" name="cuaca" type="radio" value="none" /> Normal</label>
+        <label class="radio-label"><input name="cuaca" type="radio" value="deras" /> Hujan (+Rp5.000/4 km)</label>
+      </div>
+    </div> <div class="form-group">
+      <label><span class="tandaku">*</span>Belanja - Pasar Tradisional</label>
+      <div class="helper">Item khusus a/ Lauk Pauk Hewani (Ikan, ayam, udang, sapi, dsbg)</div>
+      <div class="grid-2">
+        <div>
+          Item umum
+          <input id="itemPasarBiasa" placeholder="J.Jenis (×Rp750)" type="number" />
+        </div>
+        <div>
+          Item khusus
+          <input id="itemPasarKhusus" placeholder="J.Jenis (×Rp1.250)" type="number" />
+        </div>
+      </div>
+    </div> <br />
+    <div class="form-group">
+      <label><span class="tandaku">*</span>Belanja Mall</label>
+      <input id="itemMall" placeholder="Jumlah jenis item (×Rp3.500)" type="number" />
+    </div> <div class="form-group">
+      <label><span class="tandaku">*</span>Belanja Supermarket / Department Store</label>
+      <input id="itemSMarket" placeholder="Jumlah jenis item (×Rp1.250)" type="number" />
+    </div> <div class="form-group">
+      <label><span class="tandaku">*</span>Belanja Indomaret / Alfamart</label>
+      <input id="itemMinimarket" placeholder="Jumlah jenis item (×Rp500)" type="number" />
+    </div> <div class="form-group">
+      <label class="checkbox-label"><input id="belanjaMieGacoan" type="checkbox" /><span class="tandaku">*</span>Mie Gacoan (+Rp2.000)</label>
+    </div>
+    <div class="form-group">
+      <label class="checkbox-label"><input id="bRicheese" type="checkbox" /><span class="tandaku">*</span>Richeese Factory (+Rp2.000)</label>
+    </div>
+    <div class="form-group">
+      <label class="checkbox-label"><input id="belanjaKFC" type="checkbox" /><span class="tandaku">*</span>KFC (+Rp2.000)</label>
+    </div>
+    <div class="form-group">
+      <label class="checkbox-label"><input id="rsu" type="checkbox" /><span class="tandaku">*</span>Rumah Sakit (+Rp2.000)</label>
+    </div>
+    <div class="form-group">
+      <label class="checkbox-label"><input id="fotoKopi" type="checkbox" /><span class="tandaku">*</span>Fotokopi/ Cetak  (+Rp5.000)</label>
+    </div>
+    <div class="form-group">
+      <label class="checkbox-label"><input id="gilingDaging" type="checkbox" /><span class="tandaku">*</span>Giling Daging (+Rp5.000)</label>
+    </div>
+    <div class="form-group">
+      <label class="checkbox-label"><input id="Parkir" type="checkbox" /><span class="tandaku">*</span>Parkir (+Rp2.000)</label>
+    </div>
+    <div class="form-group">
+      <label class="checkbox-label"><input id="JalanRusak" type="checkbox" /><span class="tandaku">*</span>Jalanan Rusak (+Rp5.000)</label>
+      <div class="helper">Jalanan yang kecepatan maksimal motor tidak bisa lebih dari 20 km/jam, contoh: jalanan sawah</div>
+    </div>
+  </div>
+ </div>
+
+    <button class="cek-button" id="btnHitung" type="button">Cek Ongkir</button>
+
+    <div class="tarif" id="hasilTarif">Rp -</div>
+    <div aria-live="polite" class="rincian" id="rincianTarif"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const root=document.getElementById('kurir-widget');
+  const singlePointInput=root.querySelector('#singlePointInput');
+  const multiPointInputs=root.querySelector('#multiPointInputs');
+  const modeRadios=root.querySelectorAll('input[name="modePerhitungan"]');
+  const jarakInput=root.querySelector('#jarak');
+  const jarakMultiInput=root.querySelector('#jarakMulti');
+  const titikOnlineInput=root.querySelector('#titikOnline');
+  const titikOfflineInput=root.querySelector('#titikOffline');
+  const zonaRadios=root.querySelectorAll('input[name="zona"]');
+  const jarakZonaLuar=root.querySelector('#jarakZonaLuar');
+  const btnHitung=root.querySelector('#btnHitung');
+  const hasilTarifEl=root.querySelector('#hasilTarif');
+  const rincianEl=root.querySelector('#rincianTarif');
+
+  function hitungBase(km){
+    let base=0;
+    if(km<=2.0)base=8000;
+    else if(km<=3.0)base=10000;
+    else if(km<=4.0)base=12000;
+    else if(km<=5.0)base=14000;
+    else if(km<=6.0)base=16000;
+    else{
+      base=16000;
+      let sisa=km-6.0;
+      base+=Math.max(0,Math.min(sisa,4))*2150;sisa-=4;
+      base+=Math.max(0,Math.min(sisa,10))*2220;sisa-=10;
+      base+=Math.max(0,Math.min(sisa,10))*2330;sisa-=10;
+      base+=Math.max(0,Math.min(sisa,20))*2500;sisa-=20;
+      base+=Math.max(0,Math.min(sisa,50))*2700;sisa-=50;
+      base+=Math.max(0,Math.min(sisa,50))*2800;sisa-=50;
+      base+=Math.max(0,Math.min(sisa,50))*3000;sisa-=50;
+      base+=Math.max(0,sisa)*3000;
+    }
+    return Math.round(base);
+  }
+
+  function calcOnlinePoints(count) {
+    count = Math.max(0, parseInt(count, 10) || 0);
+    if (count === 0) return 0;
+    let total = 0;
+    // titik 1
+    total += 2000;
+    let left = count - 1;
+    // titik 2-3 (maks 2)
+    const t23 = Math.min(left, 2);
+    total += t23 * 3000;
+    left -= t23;
+    // titik 4-6 (maks 3)
+    const t46 = Math.min(left, 3);
+    total += t46 * 5000;
+    left -= t46;
+    // sisanya >6
+    if (left > 0) total += left * 7000;
+    return total;
+    }
+
+ function calcOfflinePoints(count) {
+    count = Math.max(0, parseInt(count, 10) || 0);
+    if (count === 0) return 0;
+    let total = 0;
+    let left = count;
+    // titik 1-3
+    const t13 = Math.min(left, 3);
+    total += t13 * 5000;
+    left -= t13;
+    // titik 4-6
+    const t46 = Math.min(left, 3);
+    total += t46 * 7000;
+    left -= t46;
+    // sisanya >6
+    if (left > 0) total += left * 8000;
+    return total;
+    }
+  
+  function toggleInputs(){
+    const mode=root.querySelector('input[name="modePerhitungan"]:checked').value;
+    if(mode==='single'){
+      singlePointInput.style.display='block';
+      multiPointInputs.style.display='none';
+      jarakInput.disabled=false;
+      if(jarakMultiInput){jarakMultiInput.disabled=true;jarakMultiInput.value='';}
+      if(titikOnlineInput){titikOnlineInput.disabled=true;titikOnlineInput.value='';}
+      if(titikOfflineInput){titikOfflineInput.disabled=true;titikOfflineInput.value='';}
+    }else{
+      singlePointInput.style.display='none';
+      multiPointInputs.style.display='block';
+      jarakInput.disabled=true;
+      jarakInput.value='';
+      if(jarakMultiInput){jarakMultiInput.disabled=false;}
+      if(titikOnlineInput){titikOnlineInput.disabled=false;}
+      if(titikOfflineInput){titikOfflineInput.disabled=false;}
+    }
+  }
+
+  function toggleZonaInput(){
+    const selected=root.querySelector('input[name="zona"]:checked').value;
+    jarakZonaLuar.style.display=(selected==='luar')?'block':'none';
+    if(selected!=='luar')jarakZonaLuar.value='';
+  }
+
+  modeRadios.forEach(r=>r.addEventListener('change',toggleInputs));
+  zonaRadios.forEach(r=>r.addEventListener('change',toggleZonaInput));
+  toggleInputs();toggleZonaInput();
+
+  function hitungWaktuTunggu(menit){
+    menit=Math.max(0,Math.floor(menit||0));
+    if(menit<=9)return 0;
+    if(menit<=19)return 2000;
+    if(menit<=29)return 4000;
+    if(menit<=39)return 6000;
+    if(menit<=49)return 8000;
+    if(menit<=59)return 10000;
+    const extraBlocks=Math.ceil((menit-59)/10);
+    return 10000+(extraBlocks*2500);
+  }
+
+  btnHitung.addEventListener('click',function(){
+    rincianEl.innerHTML='';
+    hasilTarifEl.textContent='Rp -';
+    const mode=root.querySelector('input[name="modePerhitungan"]:checked').value;
+    let tarif=0,totalKm=0;
+    const breakdown=[];
+    if(mode==='single'){
+      const raw=(jarakInput.value||'').toString().trim();
+      const km=parseFloat(raw.replace(',','.'));
+      if(isNaN(km)||km<=0||km>1000){hasilTarifEl.textContent='Masukkan jarak yang benar.';return;}
+      totalKm=km;
+      const base=hitungBase(km);
+      tarif+=base;
+      breakdown.push({label:`Jarak (${km} km)`,amount:base});
+    }else{
+      const raw=(jarakMultiInput?.value||'').toString().trim();
+      const km=parseFloat(raw.replace(',','.'));
+      if(isNaN(km)||km<=0||km>1000){hasilTarifEl.textContent='Masukkan jarak total yang benar.';return;}
+      totalKm=km;
+      const base=hitungBase(km);
+      tarif+=base;
+      breakdown.push({label:`Jarak total (${km} km)`,amount:base});
+      const online=parseInt(titikOnlineInput?.value,10)||0;
+      const offline=parseInt(titikOfflineInput?.value,10)||0;
+        if (online > 0) {
+            const biayaOnline = calcOnlinePoints(online);
+            tarif += biayaOnline;
+            breakdown.push({ label: `Titik Online x${online}`, amount: biayaOnline });
+        }
+
+        if (offline > 0) {
+            const biayaOffline = calcOfflinePoints(offline);
+            tarif += biayaOffline;
+            breakdown.push({ label: `Titik Offline x${offline}`, amount: biayaOffline });
+        }
+    }
+
+    const cuaca=(root.querySelector('input[name="cuaca"]:checked')||{}).value||'none';
+    if(cuaca&&cuaca!=='none'){
+      const unit4=Math.max(1,Math.ceil(totalKm/4));
+      let tambahan=0;
+      if(cuaca==='deras')tambahan=unit4*5000;
+      tarif+=tambahan;
+      breakdown.push({label:`Cuaca (${cuaca}) x${unit4}`,amount:tambahan});
+    }
+
+    const zonaVal=(root.querySelector('input[name="zona"]:checked')||{}).value||'0';
+    if(zonaVal==='1'){
+      tarif+=2000;breakdown.push({label:'Zona 1',amount:2000});
+    }else if(zonaVal==='luar'){
+      const jarakZ=parseFloat((jarakZonaLuar.value||'0').toString().replace(',','.'))||0;
+      if(isNaN(jarakZ)||jarakZ<=0){alert('Isi jarak luar zona dengan benar.');return;}
+      const tambahZona=Math.max(2000,jarakZ*2200);
+      tarif+=tambahZona;
+      breakdown.push({label:`Titik jemput luar zona (${jarakZ} km)`,amount:Math.floor(tambahZona)});
+    }
+
+    const itemPasarBiasa=parseInt(root.querySelector('#itemPasarBiasa').value,10)||0;
+    const itemPasarKhusus=parseInt(root.querySelector('#itemPasarKhusus').value,10)||0;
+    const tokoMall=parseInt(root.querySelector('#itemMall').value,10)||0;
+    const tokoSMarket=parseInt(root.querySelector('#itemSMarket').value,10)||0;
+    const tokoMini=parseInt(root.querySelector('#itemMinimarket').value,10)||0;
+
+    if(itemPasarBiasa>0){const amt=itemPasarBiasa*750;tarif+=amt;breakdown.push({label:`Belanja Pasar (biasa) x${itemPasarBiasa}`,amount:amt});}
+    if(itemPasarKhusus>0){const amt=itemPasarKhusus*1250;tarif+=amt;breakdown.push({label:`Belanja Pasar (khusus) x${itemPasarKhusus}`,amount:amt});}
+    if(tokoMall>0){const amt=tokoMall*3500;tarif+=amt;breakdown.push({label:`Mall x${tokoMall}`,amount:amt});}
+    if(tokoSMarket>0){const amt=tokoSMarket*1250;tarif+=amt;breakdown.push({label:`Supermarket x${tokoSMarket}`,amount:amt});}
+    if(tokoMini>0){const amt=tokoMini*500;tarif+=amt;breakdown.push({label:`Minimarket x${tokoMini}`,amount:amt});}
+
+    if(root.querySelector('#belanjaKFC').checked){tarif+=2000;breakdown.push({label:'KFC',amount:2000});}
+    if(root.querySelector('#belanjaMieGacoan').checked){tarif+=2000;breakdown.push({label:'Mie Gacoan',amount:2000});}
+    if(root.querySelector('#bRicheese').checked){tarif+=2000;breakdown.push({label:'Richeese',amount:2000});}
+    if(root.querySelector('#rsu').checked){tarif+=2000;breakdown.push({label:'Rumah Sakit',amount:2000});}
+    if(root.querySelector('#fotoKopi').checked){tarif+=5000;breakdown.push({label:'Fotokopi/Cetak',amount:5000});}
+    if(root.querySelector('#gilingDaging').checked){tarif+=5000;breakdown.push({label:'Giling Daging',amount:5000});}
+    if(root.querySelector('#Parkir').checked){tarif+=2000;breakdown.push({label:'Parkir',amount:2000});}
+    if(root.querySelector('#JalanRusak').checked){tarif+=5000;breakdown.push({label:'Jalanan Rusak (sedang)',amount:5000});}
+
+    const menitTunggu=parseInt((root.querySelector('#waktuTunggu')?.value||'0'),10)||0;
+    if(menitTunggu>0){
+      const biayaTunggu=hitungWaktuTunggu(menitTunggu);
+      if(biayaTunggu>0){
+        tarif+=biayaTunggu;
+        breakdown.push({label:`Waktu tunggu (${menitTunggu} menit)`,amount:biayaTunggu});
+      }
+    }
+
+    const now=new Date();
+    const hour=now.getHours();
+    let nightRatePerUnit=0;
+    if(hour>=23)nightRatePerUnit=5000;
+    else if(hour>=22)nightRatePerUnit=2000;
+    else if(hour>=21)nightRatePerUnit=1000;
+    if(nightRatePerUnit>0){
+      const kmForNight=Math.max(0,totalKm||0);
+      const units=Math.max(1,Math.ceil(kmForNight/4));
+      const nightFeeTotal=nightRatePerUnit*units;
+      tarif+=nightFeeTotal;
+      const hh=String(hour).padStart(2,'0');
+      const mm=String(now.getMinutes()).padStart(2,'0');
+      breakdown.push({label:`Malam (${hh}:${mm}) x${units} (per 4 km)`,amount:nightFeeTotal});
+    }
+
+    tarif=Math.ceil(tarif/1000)*1000;
+    hasilTarifEl.textContent='Rp '+tarif.toLocaleString('id-ID');
+    rincianEl.innerHTML=breakdown.map(b=>`<div>${b.label}: <strong>Rp ${b.amount.toLocaleString('id-ID')}</strong></div>`).join('');
+    if(window.innerWidth<640)hasilTarifEl.scrollIntoView({behavior:'smooth',block:'center'});
+  });
+})();
+</script>
+
+<script>
+  (function() {
+    function initCollapsible(panelId) {
+      const panel = document.getElementById(panelId);
+      if (!panel) return;
+      const header = panel.querySelector('.panel-header');
+      const toggleBtn = panel.querySelector('.panel-toggle');
+      const content = panel.querySelector('.panel-content');
+
+      // pastikan toggle btn mudah seleksi
+      toggleBtn.classList.add('panel-toggle-btn');
+
+      function setExpanded(expanded) {
+        header.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        content.setAttribute('aria-hidden', expanded ? 'false' : 'true');
+        toggleBtn.setAttribute('aria-pressed', expanded ? 'true' : 'false');
+        toggleBtn.textContent = expanded ? 'Sembunyikan' : 'Tampilkan';
+        if (expanded) {
+          panel.classList.remove('collapsed');
+          content.style.maxHeight = content.scrollHeight + 'px';
+          // enable semua controls di dalam content
+          content.querySelectorAll('input,select,textarea,button').forEach(el => {
+            if (el.classList.contains('panel-toggle-btn')) return;
+            el.disabled = false;
+          });
+        } else {
+          panel.classList.add('collapsed');
+          content.style.maxHeight = '0px';
+          // disable semua controls di dalam content agar tidak ikut terpakai
+          content.querySelectorAll('input,select,textarea,button').forEach(el => {
+            if (el.classList.contains('panel-toggle-btn')) return;
+            el.disabled = true;
+          });
+        }
+      }
+
+      // toggle event (header click or button click)
+      header.addEventListener('click', (e) => {
+        // abaikan klik jika target adalah elemen form di header (tidak ada di contoh)
+        const expanded = header.getAttribute('aria-expanded') === 'true';
+        setExpanded(!expanded);
+      });
+      header.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
+      });
+
+      // init: collapsed (hide) by default
+      setExpanded(false);
+
+      // beri sedikit delay agar scrollHeight dapat dihitung saat expand nanti
+      setTimeout(() => { if (!panel.classList.contains('collapsed')) content.style.maxHeight = content.scrollHeight + 'px'; }, 10);
+    }
+
+    initCollapsible('panel-opsi-tambahan');
+  })();
+</script>
+</body>
+</html>
