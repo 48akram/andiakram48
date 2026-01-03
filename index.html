@@ -266,17 +266,19 @@
 </div>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <script>
 (function(){
+  // 1. Inisialisasi Telegram & Ambil ID Order
   const tg = window.Telegram.WebApp;
   tg.expand();
 
-  // --- BAGIAN BARU: AMBIL ID DARI LINK URL ---
+  // --- BAGIAN PENTING: AMBIL ID DARI LINK URL (?oid=...) ---
   const urlParams = new URLSearchParams(window.location.search);
-  const orderID = urlParams.get('oid') || "0"; // Jika tidak ada ID, default 0
-  // ------------------------------------------
+  const orderID = urlParams.get('oid') || "0"; 
+  // ---------------------------------------------------------
 
-  // 2. Definisi Variabel DOM
+  // 2. Definisi Variabel DOM (Elemen HTML)
   const root=document.getElementById('kurir-widget');
   const singlePointInput=root.querySelector('#singlePointInput');
   const multiPointInputs=root.querySelector('#multiPointInputs');
@@ -291,7 +293,7 @@
   const hasilTarifEl=root.querySelector('#hasilTarif');
   const rincianEl=root.querySelector('#rincianTarif');
 
-  // 3. Logika Tampilan (Toggle Input)
+  // 3. Logika Tampilan (Ganti Input Single/Multi & Zona)
   function toggleInputs(){
     const mode=root.querySelector('input[name="modePerhitungan"]:checked').value;
     if(mode==='single'){
@@ -314,7 +316,7 @@
   zonaRadios.forEach(r=>r.addEventListener('change',toggleZonaInput));
   toggleInputs(); toggleZonaInput();
 
-  // 4. Logika Perhitungan Tarif
+  // 4. Rumus-Rumus Perhitungan
   function hitungBase(km){
     let base=0;
     if(km<=2.0)base=8000; else if(km<=3.0)base=10000; else if(km<=4.0)base=12000;
@@ -326,7 +328,7 @@
       base+=Math.max(0,Math.min(sisa,10))*2220;sisa-=10;
       base+=Math.max(0,Math.min(sisa,10))*2330;sisa-=10;
       base+=Math.max(0,Math.min(sisa,20))*2500;sisa-=20;
-      base+=Math.max(0,sisa)*3000; // Sisa unlimited
+      base+=Math.max(0,sisa)*3000; 
     }
     return Math.round(base);
   }
@@ -337,31 +339,32 @@
     return 10000+(Math.ceil((m-59)/10)*2500);
   }
 
-  // 5. Fungsi Kirim Data (Dipanggil saat tombol Hijau)
-  // --- UPDATE FUNGSI KIRIM: SERTAKAN ID DI BELAKANG ---
+  // 5. Fungsi Kirim Data ke Bot (Format: Harga|Rincian|ID)
   function kirimKeTelegram(hargaBersih, rincianBersih) {
       if(!hargaBersih || hargaBersih == "0") return;
       
-      // Format Baru: Harga | Rincian | ID_ORDER
+      // Mengirim paket data lengkap
       const dataString = hargaBersih + "|" + rincianBersih + "|" + orderID;
       
       tg.sendData(dataString); 
       tg.close(); 
   }
 
-  // 6. MAIN EVENT LISTENER (Tombol Klik)
+  // 6. MAIN EVENT LISTENER (Saat Tombol Diklik)
   btnHitung.addEventListener('click', function() {
     
-    // A. Cek apakah tombol sedang mode KIRIM (Hijau)
+    // A. MODE KIRIM: Jika tombol sudah hijau
     if(btnHitung.classList.contains('ready-to-send')) {
        const hargaTeks = document.getElementById('hasilTarif').innerText;
        const hargaBersih = hargaTeks.replace(/[^0-9]/g, '');
+       // Ganti baris baru (\n) dengan koma agar rapi di chat
        const rincianTeks = document.getElementById('rincianTarif').innerText.replace(/\n/g, " , ");
        
        kirimKeTelegram(hargaBersih, rincianTeks);
        return;
     }
-    // B. Mode HITUNG (Biru)
+
+    // B. MODE HITUNG: Kalkulasi Tarif (Logika Asli)
     rincianEl.innerHTML='';
     hasilTarifEl.textContent='Rp -';
     const mode=root.querySelector('input[name="modePerhitungan"]:checked').value;
@@ -391,7 +394,7 @@
       if(off>0){ const b=calcOfflinePoints(off); tarif+=b; breakdown.push({label:`Titik Offline x${off}`, amount:b}); }
     }
 
-    // --- Kalkulasi Tambahan ---
+    // --- Kalkulasi Cuaca ---
     const cuaca=root.querySelector('input[name="cuaca"]:checked').value;
     if(cuaca==='deras'){ 
        const unit=Math.max(1,Math.ceil(totalKm/4)); 
@@ -399,6 +402,7 @@
        breakdown.push({label:`Hujan x${unit}`, amount:b}); 
     }
 
+    // --- Kalkulasi Zona ---
     const zona=root.querySelector('input[name="zona"]:checked').value;
     if(zona==='1'){ tarif+=2000; breakdown.push({label:'Zona 1', amount:2000}); }
     else if(zona==='luar'){
@@ -406,7 +410,7 @@
        if(jz>0){ const b=Math.max(2000, jz*2200); tarif+=b; breakdown.push({label:`Luar Zona (${jz}km)`, amount:Math.floor(b)}); }
     }
 
-    // Belanja & Lainnya
+    // --- Belanja & Lainnya ---
     const items = [
         {id:'#itemPasarBiasa',  p:750,  n:'Pasar Biasa'},
         {id:'#itemPasarKhusus', p:1250, n:'Pasar Khusus'},
@@ -429,10 +433,11 @@
         if(root.querySelector(c.id).checked){ tarif+=c.p; breakdown.push({label:c.n, amount:c.p}); }
     });
 
+    // --- Waktu Tunggu ---
     const wait=parseInt(root.querySelector('#waktuTunggu').value||0,10);
     if(wait>0){ const b=hitungWaktuTunggu(wait); if(b>0){ tarif+=b; breakdown.push({label:`Tunggu (${wait}m)`, amount:b}); }}
 
-    // Malam
+    // --- Tarif Malam ---
     const now=new Date(); const h=now.getHours();
     let nightP=0; 
     if(h>=23)nightP=5000; else if(h>=22)nightP=2000; else if(h>=21)nightP=1000;
@@ -448,25 +453,26 @@
 
     // D. UBAH TOMBOL JADI HIJAU (SIAP KIRIM)
     btnHitung.innerText = "KIRIM ONGKIR KE TELEGRAM";
-    btnHitung.classList.add('ready-to-send'); // Tambah class CSS hijau
+    btnHitung.classList.add('ready-to-send'); 
+    btnHitung.style.background = "#28a745"; // Paksa warna hijau
     
-    // Scroll ke bawah di HP
+    // Scroll otomatis di HP
     if(window.innerWidth<640) hasilTarifEl.scrollIntoView({behavior:'smooth',block:'center'});
   });
 
-  // Reset tombol jadi biru jika user mengubah input apapun
+  // 7. Reset Tombol jadi Biru jika user mengubah input
   const allInputs = root.querySelectorAll('input');
   allInputs.forEach(input => {
       input.addEventListener('input', () => {
           if(btnHitung.classList.contains('ready-to-send')){
               btnHitung.innerText = "Cek Ongkir (Update)";
               btnHitung.classList.remove('ready-to-send');
-              btnHitung.style.background = ""; // Reset warna
+              btnHitung.style.background = ""; // Reset ke warna CSS asli
           }
       });
   });
 
-  // Init Collapsible
+  // 8. Logika Panel Tambahan (Collapsible)
   function initCollapsible(panelId) {
      const panel = document.getElementById(panelId);
      if (!panel) return;
@@ -483,6 +489,6 @@
 
 })();
 </script>
-    bbccdd
+    123
 </body>
 </html>
