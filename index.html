@@ -140,7 +140,55 @@
             .panel-toggle { padding:5px 8px; }
         }
     </style>
-    
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<script>
+  // Inisialisasi WebApp
+  const tg = window.Telegram.WebApp;
+  tg.expand(); 
+
+  function kirimKeTelegram() {
+    try {
+      // Ambil elemen hasil
+      const hasilTarifEl = document.getElementById("hasilTarif");
+      const rincianEl = document.getElementById("rincianTarif");
+
+      // Ambil angka saja (menghapus Rp dan titik)
+      const hargaBersih = hasilTarifEl.innerText.replace(/[^0-9]/g, '');
+      const rincianTeks = rincianEl.innerText.replace(/\n/g, " | ");
+
+      if (!hargaBersih || hargaBersih === "0" || hargaBersih === "") {
+        alert("⚠️ Hitung ongkir dulu sampai muncul angka!");
+        return;
+      }
+
+      const dataFinal = hargaBersih + "|" + rincianTeks;
+
+      // DEBUG: Munculkan pesan ini untuk tes apakah JS jalan
+      alert("Sedang mengirim: " + dataFinal);
+
+      // KIRIM DATA KE BOT
+      tg.sendData(dataFinal);
+      
+      // Tutup WebApp
+      tg.close();
+    } catch (e) {
+      alert("Error JS: " + e.message);
+    }
+  }
+
+  // Pasang event listener ke tombol 'btnHitung'
+  document.getElementById('btnHitung').addEventListener('click', function() {
+    // Beri jeda sebentar agar kalkulator selesai menghitung
+    setTimeout(() => {
+      this.innerText = "KIRIM HASIL KE BOT";
+      this.style.background = "#28a745"; // Warna Hijau
+      
+      // Ganti fungsi klik selanjutnya untuk kirim data
+      this.onclick = kirimKeTelegram;
+    }, 500);
+  });
+</script>
 </head>
 <body>
 
@@ -552,55 +600,6 @@
     initCollapsible('panel-opsi-tambahan');
   })();
 </script>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script>
-  const tg = window.Telegram.WebApp;
-  tg.expand();
-
-  function kirimDataKeBot() {
-    try {
-      const hasilTarifEl = document.getElementById("hasilTarif");
-      const rincianEl = document.getElementById("rincianTarif");
-
-      // Log untuk cek di console browser
-      console.log("Mencoba kirim data...");
-
-      const hargaTeks = hasilTarifEl.innerText;
-      const hargaBersih = hargaTeks.replace(/[^0-9]/g, ''); 
-      const rincianTeks = rincianEl.innerText.replace(/\n/g, " | ");
-
-      if (!hargaBersih || hargaBersih === "0") {
-          alert("Hitung dulu ongkirnya!");
-          return;
-      }
-
-      const formatKirim = hargaBersih + "|" + rincianTeks;
-      
-      // DEBUG: Munculkan alert sebelum kirim untuk memastikan data siap
-      alert("Data siap kirim: " + formatKirim);
-
-      // KIRIM KE TELEGRAM
-      tg.sendData(formatKirim);
-      
-      // Jika sendData tidak jalan, WebApp tidak akan tertutup
-      tg.close();
-    } catch (err) {
-      alert("Error JS: " + err.message);
-    }
-  }
-
-  // Pasang ke tombol
-  document.getElementById('btnHitung').onclick = function() {
-      // Jalankan fungsi kalkulasi asli web Sensei dulu
-      // ... (fungsi hitung Sensei)
-      
-      // Beri tanda tombol siap kirim
-      setTimeout(() => {
-          this.innerText = "KIRIM KE TELEGRAM";
-          this.style.background = "green";
-          this.onclick = kirimDataKeBot;
-      }, 500);
-  };
-</script>
+    aa
 </body>
 </html>
