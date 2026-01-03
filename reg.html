@@ -11,105 +11,109 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
-        /* CSS RESET & VARIABLES */
+        /* --- CSS DASAR --- */
         :root {
             --primary-color: #2563eb;
             --bg-color: #f3f4f6;
-            --text-color: #1f2937;
             --border-color: #d1d5db;
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: var(--bg-color); padding: 20px; display: flex; justify-content: center; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: var(--bg-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-
-        /* CONTAINER FORM */
+        /* CONTAINER */
         .form-container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
+            background-color: white; padding: 30px; border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 600px;
         }
-
-        .form-header { text-align: center; margin-bottom: 30px; }
-        .form-header h2 { color: var(--text-color); font-size: 24px; font-weight: 700; }
+        h2 { text-align: center; margin-bottom: 20px; color: #1f2937; }
         
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #374151; }
         .required::after { content: " *"; color: red; }
 
         .form-control {
-            width: 100%; padding: 12px 16px; border: 1px solid var(--border-color);
-            border-radius: 8px; font-size: 16px; background-color: #fff;
+            width: 100%; padding: 10px; border: 1px solid var(--border-color);
+            border-radius: 8px; font-size: 14px;
         }
-        .form-control:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         textarea.form-control { resize: vertical; min-height: 80px; }
 
-        /* MAP STYLING */
-        #map {
+        /* --- CSS KHUSUS PETA & TOMBOL GPS --- */
+        .map-wrapper {
+            position: relative; /* Agar tombol GPS bisa absolute di dalamnya */
             height: 300px;
             width: 100%;
+            margin-top: 5px;
+        }
+        
+        #map {
+            height: 100%; width: 100%;
             border-radius: 8px;
             border: 2px solid var(--border-color);
-            z-index: 1; /* Agar tidak menutupi dropdown */
+            z-index: 1; 
         }
-        .map-hint { font-size: 12px; color: #6b7280; margin-bottom: 5px; font-style: italic; }
 
-        /* BUTTON */
+        /* Tombol GPS Melayang */
+        .btn-gps {
+            position: absolute;
+            bottom: 20px;
+            right: 10px;
+            z-index: 1000; /* Di atas peta */
+            background-color: white;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            font-weight: bold;
+            font-size: 13px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-gps:active { background-color: #f0f0f0; transform: translateY(1px); }
+
+        /* BUTTON SUBMIT */
         .btn-submit {
-            width: 100%; padding: 14px; background-color: var(--primary-color); color: white;
-            border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px;
+            width: 100%; padding: 14px; background-color: var(--primary-color);
+            color: white; border: none; border-radius: 8px; font-size: 16px; 
+            font-weight: bold; cursor: pointer; margin-top: 15px;
         }
-        .btn-submit:hover { background-color: #1d4ed8; }
-
         .hidden { display: none; }
-
-        /* RESPONSIVE */
-        @media (max-width: 480px) { .form-container { padding: 20px; } }
     </style>
 </head>
 <body>
 
 <div class="form-container">
-    <div class="form-header">
-        <h2>Data Pelanggan</h2>
-        <p style="color: #6b7280; font-size: 14px;">Lengkapi data agar kurir mudah menemukan lokasi.</p>
-    </div>
+    <h2>Data Pelanggan</h2>
 
     <form id="biodataForm">
         <div class="form-group">
-            <label for="nama" class="required">Nama Lengkap</label>
+            <label class="required">Nama Lengkap</label>
             <input type="text" id="nama" class="form-control" placeholder="Nama Anda" required>
         </div>
 
         <div class="form-group">
-            <label for="whatsapp" class="required">No. Whatsapp</label>
-            <input type="tel" id="whatsapp" class="form-control" placeholder="08xxxxxxxxxx" inputmode="numeric" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            <label class="required">No. Whatsapp</label>
+            <input type="tel" id="whatsapp" class="form-control" placeholder="08xxxxxxxxxx" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
         </div>
 
         <div class="form-group">
-            <label for="email">Email (Opsional)</label>
+            <label>Email (Opsional)</label>
             <input type="email" id="email" class="form-control" placeholder="email@contoh.com">
         </div>
 
-        <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-        <h3 style="font-size: 16px; margin-bottom: 15px; color: #374151;">Lokasi Pengantaran</h3>
-
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+        
         <div class="form-group">
-            <label>Negara</label>
-            <input type="text" class="form-control" value="Indonesia" disabled style="background-color: #f9fafb;">
-        </div>
-
-        <div class="form-group">
-            <label for="provinsi">Provinsi</label>
+            <label>Provinsi</label>
             <select id="provinsi" class="form-control">
-                <option value="Sulawesi Selatan" selected>Sulawesi Selatan</option>
+                <option value="Sulawesi Selatan">Sulawesi Selatan</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="kota">Kota / Kabupaten</label>
+            <label class="required">Kota / Kabupaten</label>
             <select id="kota" class="form-control" onchange="checkKota()">
                 <option value="" disabled selected>Pilih Kota/Kabupaten</option>
                 <option value="Kota Makassar">Kota Makassar</option>
@@ -122,13 +126,13 @@
 
         <div id="pinrangArea" class="hidden">
             <div class="form-group">
-                <label for="kecamatan">Kecamatan</label>
+                <label class="required">Kecamatan</label>
                 <select id="kecamatan" class="form-control" onchange="loadDesa()">
                     <option value="" disabled selected>Pilih Kecamatan</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="desa">Kelurahan / Desa</label>
+                <label class="required">Kelurahan / Desa</label>
                 <select id="desa" class="form-control">
                     <option value="" disabled selected>Pilih Kelurahan/Desa</option>
                 </select>
@@ -136,14 +140,23 @@
         </div>
 
         <div class="form-group">
-            <label for="alamatDetail" class="required">Detail Alamat</label>
-            <textarea id="alamatDetail" class="form-control" placeholder="Nama Jalan, Blok, Nomor Rumah, Nama Gedung, Warna Pagar, atau Patokan dekat mana..." required></textarea>
+            <label class="required">Detail Alamat</label>
+            <textarea id="alamatDetail" class="form-control" placeholder="Nama Jalan, Nomor Rumah, Warna Pagar, Patokan..."></textarea>
         </div>
 
         <div class="form-group">
             <label class="required">Titik Lokasi (Geser Pin)</label>
-            <div class="map-hint">Geser pin merah ke titik lokasi rumah/pengantaran Anda.</div>
-            <div id="map"></div>
+            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                Tekan tombol 🎯 untuk mencari lokasi Anda saat ini.
+            </div>
+            
+            <div class="map-wrapper">
+                <div id="map"></div>
+                <button type="button" class="btn-gps" onclick="cariLokasiSaya()">
+                    🎯 Lokasi Saya
+                </button>
+            </div>
+            
             <input type="hidden" id="latVal">
             <input type="hidden" id="longVal">
         </div>
@@ -153,60 +166,70 @@
 </div>
 
 <script>
-    // --- 1. INISIALISASI TELEGRAM WEBAPP ---
     let tg = window.Telegram.WebApp;
-    tg.expand(); 
+    tg.expand();
 
-    // --- 2. LOGIKA PETA (LEAFLET JS) ---
-    // Koordinat default Pinrang
+    // --- PETA SETUP ---
     const defaultLat = -3.7995; 
     const defaultLng = 119.6464; 
 
-    // Membuat Peta
     var map = L.map('map').setView([defaultLat, defaultLng], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // Menambahkan Layer Peta (OpenStreetMap)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+    var marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
 
-    // Menambahkan Marker (Pin) yang bisa digeser
-    var marker = L.marker([defaultLat, defaultLng], {
-        draggable: true
-    }).addTo(map);
-
-    // Fungsi update input Lat/Long saat marker digeser
-    function updateMarker(lat, lng) {
+    // Update input saat marker digeser
+    function updateInput(lat, lng) {
         document.getElementById('latVal').value = lat;
         document.getElementById('longVal').value = lng;
     }
-    
-    // Set nilai awal
-    updateMarker(defaultLat, defaultLng);
+    updateInput(defaultLat, defaultLng);
 
-    // Event Listener saat marker selesai digeser
     marker.on('dragend', function (e) {
-        var position = marker.getLatLng();
-        updateMarker(position.lat, position.lng);
-        // Pan peta ke lokasi baru marker
-        map.panTo([position.lat, position.lng]);
+        var pos = marker.getLatLng();
+        updateInput(pos.lat, pos.lng);
+        map.panTo(pos);
     });
 
-    // Coba ambil lokasi GPS User saat pertama buka (Opsional)
-    map.locate({setView: true, maxZoom: 16});
-    function onLocationFound(e) {
-        marker.setLatLng(e.latlng);
-        updateMarker(e.latlng.lat, e.latlng.lng);
+    // --- FITUR GPS LOKASI SAYA ---
+    function cariLokasiSaya() {
+        const btn = document.querySelector('.btn-gps');
+        btn.innerHTML = "⏳ Mencari...";
+        
+        map.locate({setView: true, maxZoom: 17, enableHighAccuracy: true});
     }
-    map.on('locationfound', onLocationFound);
 
+    // Saat lokasi ditemukan
+    map.on('locationfound', function(e) {
+        const btn = document.querySelector('.btn-gps');
+        btn.innerHTML = "🎯 Lokasi Saya"; // Balikkan teks tombol
+        
+        // Pindahkan Marker ke lokasi user
+        marker.setLatLng(e.latlng);
+        updateInput(e.latlng.lat, e.latlng.lng);
+        
+        // Animasi Zoom ke lokasi
+        map.flyTo(e.latlng, 17);
+        
+        tg.showAlert("Lokasi ditemukan! Silakan geser pin jika kurang pas.");
+    });
 
-    // --- 3. DATA WILAYAH & LOGIKA DROPDOWN ---
+    // Jika Gagal/Ditolak
+    map.on('locationerror', function(e) {
+        const btn = document.querySelector('.btn-gps');
+        btn.innerHTML = "🎯 Lokasi Saya";
+        tg.showAlert("Gagal mengambil lokasi. Pastikan GPS aktif dan izinkan akses lokasi.");
+    });
+
+    // Coba cari lokasi otomatis saat pertama buka
+    cariLokasiSaya();
+
+    // --- LOGIKA WILAYAH (Sama seperti sebelumnya) ---
     const dataPinrang = {
         "Kecamatan Matirro Sompe": ["Kelurahan Langnga", "Kelurahan Pallameang", "Desa Massulowalie", "Desa Mattombong", "Desa Mattongang Tongang", "Desa Patobong", "Desa Samaenre", "Desa Mattirotasi", "Desa Siwolong Polong"],
         "Kecamatan Suppa": ["Kelurahan Watang Suppa", "Kelurahan Tellumpanua", "Desa Lero", "Desa Watang Pulu", "Desa Maritengngae", "Desa Tasiwalie", "Desa Wiringtasi", "Desa Lotang Salo", "Desa Ujung Labuang", "Desa Polewali"],
         "Kecamatan Mattiro Bulu": ["Kelurahan Manarang", "Kelurahan Padaidi", "Desa Pananrang", "Desa Padakkalawa", "Desa Marannu", "Desa Alitta", "Desa Padaelo", "Desa Bunga", "Desa Makkawaru"],
-        "Kecamatan Watang Sawito": ["Kelurahan Jaya", "Kelurahan Sawitto", "Kelurahan Maccorawalie", "Kelurahan Penrang", "Kelurahan Salo", "Kelurahan Bentengnge", "Kelurahan Sipatokkong", "Kelurahan Siparappe"],
+        "Kecamatan Watang Sawito": ["Kelurahan Jaya", "Kelurahan Sawito", "Kelurahan Maccoralaie", "Kelurahan Penrang", "Kelurahan Salo", "Kelurahan Bentengnge", "Kelurahan Sipatokkong", "Kelurahan Siparappe"],
         "Kecamatan Patampanua": ["Kelurahan Benteng", "Kelurahan Teppo", "Kelurahan Tonyamang", "Kelurahan Maccirinna", "Desa Leppangang", "Desa Malimpung", "Desa Mattiroade", "Desa Sipatuo", "Desa Padangloang", "Desa Pincara", "Desa Masolo"],
         "Kecamatan Duampanua": ["Kelurahan Pekkabata", "Kelurahan Tatae", "Kelurahan Lampa", "Kelurahan Data", "Kelurahan Bittoeng", "Desa Kaballangan", "Desa Paria", "Desa Kaliang", "Desa Battusawe", "Desa Maroneng", "Desa Katomporang", "Desa Bungi", "Desa Massewae", "Desa Bababinanga", "Desa Barugae"],
         "Kecamatan Lembang": ["Kelurahan Taddokong", "Kelurahan Betteng", "Desa Binanga Karaeng", "Desa Rajang", "Desa Letta", "Desa Ulusaddang", "Desa Suppirang", "Desa Basseang", "Desa Kariango", "Desa Benteng Paremba", "Desa Pakeng", "Desa Lembang Mesakada", "Desa Sali Sali", "Desa Sabbang Paru", "Desa Bakaru", "Desa Pangaparang"],
@@ -228,14 +251,11 @@
             populateKecamatan();
         } else {
             pinrangArea.classList.add('hidden');
-            kecamatanSelect.innerHTML = '<option value="" disabled selected>Pilih Kecamatan</option>';
-            desaSelect.innerHTML = '<option value="" disabled selected>Pilih Kelurahan/Desa</option>';
         }
     }
 
     function populateKecamatan() {
         kecamatanSelect.innerHTML = '<option value="" disabled selected>Pilih Kecamatan</option>';
-        desaSelect.innerHTML = '<option value="" disabled selected>Pilih Kelurahan/Desa</option>';
         for (let kec in dataPinrang) {
             let option = document.createElement('option');
             option.value = kec; option.text = kec;
@@ -255,9 +275,7 @@
         }
     }
 
-    // --- 4. FUNGSI KIRIM DATA KE BOT ---
     function kirimData() {
-        // Ambil Nilai
         let nama = document.getElementById("nama").value;
         let wa = document.getElementById("whatsapp").value;
         let kota = document.getElementById("kota").value;
@@ -265,40 +283,33 @@
         let lat = document.getElementById("latVal").value;
         let long = document.getElementById("longVal").value;
 
-        // Validasi Sederhana
         if(!nama || !wa || !kota || !detail) {
-            tg.showAlert("Mohon lengkapi data Nama, WA, Kota, dan Detail Alamat.");
+            tg.showAlert("Mohon lengkapi Nama, WA, Kota, dan Detail Alamat.");
             return;
         }
 
-        // Susun Alamat Lengkap String
         let alamatFull = detail + ", " + kota;
-        
-        // Jika Pinrang, tambahkan Kec/Desa
         if(kota === "Kabupaten Pinrang") {
             let kec = document.getElementById("kecamatan").value;
             let des = document.getElementById("desa").value;
-            if(!kec || !des) {
+            if(kec && des) {
+                alamatFull = detail + ", " + des + ", " + kec + ", " + kota;
+            } else {
                 tg.showAlert("Mohon pilih Kecamatan dan Desa.");
                 return;
             }
-            alamatFull = detail + ", " + des + ", " + kec + ", " + kota;
         }
 
-        // Susun Object JSON untuk dikirim ke Python
         let dataKirim = {
-            tipe: "registrasi", // Kunci untuk membedakan di bot.py
+            tipe: "registrasi",
             nama: nama,
             wa: wa,
             alamat: alamatFull,
             lat: parseFloat(lat),
             long: parseFloat(long)
         };
-
-        // Kirim ke Bot Telegram
         tg.sendData(JSON.stringify(dataKirim));
     }
-
 </script>
 
 </body>
