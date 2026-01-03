@@ -552,52 +552,39 @@
     initCollapsible('panel-opsi-tambahan');
   })();
 </script>
-
-    
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
 <script>
-  // Inisialisasi Telegram WebApp
   const tg = window.Telegram.WebApp;
-  tg.expand(); // Agar WebApp langsung terbuka penuh
+  tg.expand(); 
 
-  // Modifikasi fungsi hitung yang sudah ada atau tambahkan tombol kirim
-  // Di sini saya tambahkan fungsi kirim yang benar
   function kirimDataKeBot() {
     const hasilTarifEl = document.getElementById("hasilTarif");
     const rincianEl = document.getElementById("rincianTarif");
 
-    // 1. Ambil teks dan bersihkan (Hapus "Rp" dan titik/koma agar jadi angka bersih)
-    const hargaTeks = hasilTarifEl.innerText; // Contoh: "Rp 15.000"
+    // Ambil angka saja dari teks "Rp 15.000"
+    const hargaTeks = hasilTarifEl.innerText;
     const hargaBersih = hargaTeks.replace(/[^0-9]/g, ''); 
     
-    // 2. Ambil rincian (Ganti baris baru dengan koma agar tidak berantakan di Telegram)
-    const rincianTeks = rincianEl.innerText.replace(/\n/g, ", ");
+    // Ambil rincian dan bersihkan baris baru
+    const rincianTeks = rincianEl.innerText.replace(/\n/g, " | ");
 
-    if (!hargaBersih || hargaBersih === "0" || hargaBersih === "") {
-        alert("Silakan hitung ongkir dulu!");
+    if (!hargaBersih || hargaBersih === "0") {
+        alert("Hitung dulu ongkirnya!");
         return;
     }
 
-    // 3. Gabungkan data dengan pemisah "|"
-    // Format: Harga|Rincian
-    const dataString = hargaBersih + "|" + rincianTeks;
-
-    // 4. Kirim ke Bot
-    tg.sendData(dataString);
+    // KIRIM DATA (PENTING: Format Harga|Rincian)
+    tg.sendData(hargaBersih + "|" + rincianTeks);
   }
 
-  // Tambahkan Event Listener ke tombol yang sudah ada
-  // Jadi setelah Driver klik "Cek Ongkir", tombolnya berubah jadi "Kirim ke Bot"
-  const btnHitung = document.getElementById('btnHitung');
-  btnHitung.addEventListener('click', function() {
-      // Kita beri sedikit delay agar perhitungan selesai dulu
+  // Pasangkan fungsi kirim ke tombol "Cek Ongkir" setelah kalkulasi
+  document.getElementById('btnHitung').addEventListener('click', function() {
+      // Tunggu 500ms agar kalkulasi HTML selesai, lalu ubah tombol
       setTimeout(() => {
-          btnHitung.innerText = "Kirim Hasil ke Telegram";
-          btnHitung.style.background = "#28a745"; // Ubah warna jadi hijau
-          
-          // Ubah fungsinya: Klik kedua kali akan mengirim data
-          btnHitung.onclick = kirimDataKeBot;
+          const btn = document.getElementById('btnHitung');
+          btn.innerText = "KIRIM ONGKIR KE BOT";
+          btn.style.background = "#28a745";
+          btn.onclick = kirimDataKeBot; // Klik berikutnya akan mengirim
       }, 500);
   });
 </script>
