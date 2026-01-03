@@ -142,52 +142,6 @@
     </style>
 </head>
 <body>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script>
-  const tg = window.Telegram.WebApp;
-  tg.expand();
-
-  // Ambil elemen-elemen penting
-  const btnHitung = document.getElementById('btnHitung');
-  const hasilTarifEl = document.getElementById('hasilTarif');
-  const rincianEl = document.getElementById('rincianTarif');
-
-  // Fungsi Kirim ke Telegram
-  function prosesKirimData() {
-    const hargaTeks = hasilTarifEl.innerText;
-    const hargaBersih = hargaTeks.replace(/[^0-9]/g, '');
-    const rincianTeks = rincianEl.innerText.replace(/\n/g, " | ");
-
-    if (!hargaBersih || hargaBersih === "0" || hargaBersih === "") {
-      alert("⚠️ Hitung ongkir dulu!");
-      return;
-    }
-
-    // Kirim data ke bot
-    tg.sendData(hargaBersih + "|" + rincianTeks);
-    tg.close();
-  }
-
-  // Modifikasi Klik Tombol
-  btnHitung.addEventListener('click', function() {
-    // 1. Tunggu sebentar agar fungsi hitung asli bawaan web selesai jalan
-    setTimeout(() => {
-      // 2. Cek apakah hasil sudah muncul
-      if (hasilTarifEl.innerText !== "Rp -" && hasilTarifEl.innerText !== "") {
-        
-        // 3. Ubah tombol menjadi Hijau untuk pengiriman
-        btnHitung.innerText = "KIRIM ONGKIR KE TELEGRAM";
-        btnHitung.style.background = "#28a745";
-        
-        // 4. Buat agar klik berikutnya memanggil fungsi kirim
-        btnHitung.onclick = function(e) {
-          e.preventDefault();
-          prosesKirimData();
-        };
-      }
-    }, 300); // Jeda 0.3 detik
-  });
-</script>
 <div aria-labelledby="kurir-title" id="kurir-widget" style="width: 100%;">
 
   <div aria-label="Kalkulator Ongkir" class="card" role="region">
@@ -311,8 +265,14 @@
   </div>
 </div>
 
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
 (function(){
+  // 1. Init Telegram WebApp
+  const tg = window.Telegram.WebApp;
+  tg.expand();
+
+  // 2. Definisi Variabel DOM
   const root=document.getElementById('kurir-widget');
   const singlePointInput=root.querySelector('#singlePointInput');
   const multiPointInputs=root.querySelector('#multiPointInputs');
@@ -327,13 +287,34 @@
   const hasilTarifEl=root.querySelector('#hasilTarif');
   const rincianEl=root.querySelector('#rincianTarif');
 
+  // 3. Logika Tampilan (Toggle Input)
+  function toggleInputs(){
+    const mode=root.querySelector('input[name="modePerhitungan"]:checked').value;
+    if(mode==='single'){
+      singlePointInput.style.display='block';
+      multiPointInputs.style.display='none';
+      jarakInput.disabled=false;
+      if(jarakMultiInput) jarakMultiInput.disabled=true; 
+    }else{
+      singlePointInput.style.display='none';
+      multiPointInputs.style.display='block';
+      jarakInput.disabled=true;
+      if(jarakMultiInput) jarakMultiInput.disabled=false;
+    }
+  }
+  function toggleZonaInput(){
+    const selected=root.querySelector('input[name="zona"]:checked').value;
+    jarakZonaLuar.style.display=(selected==='luar')?'block':'none';
+  }
+  modeRadios.forEach(r=>r.addEventListener('change',toggleInputs));
+  zonaRadios.forEach(r=>r.addEventListener('change',toggleZonaInput));
+  toggleInputs(); toggleZonaInput();
+
+  // 4. Logika Perhitungan Tarif
   function hitungBase(km){
     let base=0;
-    if(km<=2.0)base=8000;
-    else if(km<=3.0)base=10000;
-    else if(km<=4.0)base=12000;
-    else if(km<=5.0)base=14000;
-    else if(km<=6.0)base=16000;
+    if(km<=2.0)base=8000; else if(km<=3.0)base=10000; else if(km<=4.0)base=12000;
+    else if(km<=5.0)base=14000; else if(km<=6.0)base=16000;
     else{
       base=16000;
       let sisa=km-6.0;
@@ -341,261 +322,161 @@
       base+=Math.max(0,Math.min(sisa,10))*2220;sisa-=10;
       base+=Math.max(0,Math.min(sisa,10))*2330;sisa-=10;
       base+=Math.max(0,Math.min(sisa,20))*2500;sisa-=20;
-      base+=Math.max(0,Math.min(sisa,50))*2700;sisa-=50;
-      base+=Math.max(0,Math.min(sisa,50))*2800;sisa-=50;
-      base+=Math.max(0,Math.min(sisa,50))*3000;sisa-=50;
-      base+=Math.max(0,sisa)*3000;
+      base+=Math.max(0,sisa)*3000; // Sisa unlimited
     }
     return Math.round(base);
   }
-
-  function calcOnlinePoints(count) {
-    count = Math.max(0, parseInt(count, 10) || 0);
-    if (count === 0) return 0;
-    let total = 0;
-    // titik 1
-    total += 2000;
-    let left = count - 1;
-    // titik 2-3 (maks 2)
-    const t23 = Math.min(left, 2);
-    total += t23 * 3000;
-    left -= t23;
-    // titik 4-6 (maks 3)
-    const t46 = Math.min(left, 3);
-    total += t46 * 5000;
-    left -= t46;
-    // sisanya >6
-    if (left > 0) total += left * 7000;
-    return total;
-    }
-
- function calcOfflinePoints(count) {
-    count = Math.max(0, parseInt(count, 10) || 0);
-    if (count === 0) return 0;
-    let total = 0;
-    let left = count;
-    // titik 1-3
-    const t13 = Math.min(left, 3);
-    total += t13 * 5000;
-    left -= t13;
-    // titik 4-6
-    const t46 = Math.min(left, 3);
-    total += t46 * 7000;
-    left -= t46;
-    // sisanya >6
-    if (left > 0) total += left * 8000;
-    return total;
-    }
-  
-  function toggleInputs(){
-    const mode=root.querySelector('input[name="modePerhitungan"]:checked').value;
-    if(mode==='single'){
-      singlePointInput.style.display='block';
-      multiPointInputs.style.display='none';
-      jarakInput.disabled=false;
-      if(jarakMultiInput){jarakMultiInput.disabled=true;jarakMultiInput.value='';}
-      if(titikOnlineInput){titikOnlineInput.disabled=true;titikOnlineInput.value='';}
-      if(titikOfflineInput){titikOfflineInput.disabled=true;titikOfflineInput.value='';}
-    }else{
-      singlePointInput.style.display='none';
-      multiPointInputs.style.display='block';
-      jarakInput.disabled=true;
-      jarakInput.value='';
-      if(jarakMultiInput){jarakMultiInput.disabled=false;}
-      if(titikOnlineInput){titikOnlineInput.disabled=false;}
-      if(titikOfflineInput){titikOfflineInput.disabled=false;}
-    }
+  function calcOnlinePoints(c){return (c>0)?(2000 + (Math.min(c-1,2)*3000) + (Math.min(Math.max(c-3,0),3)*5000) + (Math.max(c-6,0)*7000)):0;}
+  function calcOfflinePoints(c){return (c>0)?((Math.min(c,3)*5000) + (Math.min(Math.max(c-3,0),3)*7000) + (Math.max(c-6,0)*8000)):0;}
+  function hitungWaktuTunggu(m){
+    if(m<=9)return 0; if(m<=19)return 2000; if(m<=29)return 4000; if(m<=39)return 6000; if(m<=49)return 8000; if(m<=59)return 10000;
+    return 10000+(Math.ceil((m-59)/10)*2500);
   }
 
-  function toggleZonaInput(){
-    const selected=root.querySelector('input[name="zona"]:checked').value;
-    jarakZonaLuar.style.display=(selected==='luar')?'block':'none';
-    if(selected!=='luar')jarakZonaLuar.value='';
+  // 5. Fungsi Kirim Data (Dipanggil saat tombol Hijau)
+  function kirimKeTelegram(hargaBersih, rincianBersih) {
+      if(!hargaBersih || hargaBersih == "0") return;
+      const dataString = hargaBersih + "|" + rincianBersih;
+      tg.sendData(dataString); // Kirim Data
+      tg.close(); // Tutup WebApp
   }
 
-  modeRadios.forEach(r=>r.addEventListener('change',toggleInputs));
-  zonaRadios.forEach(r=>r.addEventListener('change',toggleZonaInput));
-  toggleInputs();toggleZonaInput();
+  // 6. MAIN EVENT LISTENER (Tombol Klik)
+  btnHitung.addEventListener('click', function() {
+    
+    // A. Cek apakah tombol sedang mode KIRIM (Hijau)
+    if(btnHitung.classList.contains('ready-to-send')) {
+       // Ambil nilai saat ini
+       const hargaTeks = hasilTarifEl.innerText;
+       const hargaBersih = hargaTeks.replace(/[^0-9]/g, '');
+       const rincianTeks = rincianEl.innerText.replace(/\n/g, " | ");
+       
+       kirimKeTelegram(hargaBersih, rincianTeks);
+       return; // Selesai
+    }
 
-  function hitungWaktuTunggu(menit){
-    menit=Math.max(0,Math.floor(menit||0));
-    if(menit<=9)return 0;
-    if(menit<=19)return 2000;
-    if(menit<=29)return 4000;
-    if(menit<=39)return 6000;
-    if(menit<=49)return 8000;
-    if(menit<=59)return 10000;
-    const extraBlocks=Math.ceil((menit-59)/10);
-    return 10000+(extraBlocks*2500);
-  }
-
-  btnHitung.addEventListener('click',function(){
+    // B. Mode HITUNG (Biru)
     rincianEl.innerHTML='';
     hasilTarifEl.textContent='Rp -';
     const mode=root.querySelector('input[name="modePerhitungan"]:checked').value;
-    let tarif=0,totalKm=0;
+    let tarif=0, totalKm=0;
     const breakdown=[];
+
+    // --- Kalkulasi Jarak ---
     if(mode==='single'){
       const raw=(jarakInput.value||'').toString().trim();
       const km=parseFloat(raw.replace(',','.'));
-      if(isNaN(km)||km<=0||km>1000){hasilTarifEl.textContent='Masukkan jarak yang benar.';return;}
+      if(isNaN(km)||km<=0){ alert('Masukkan jarak yang benar.'); return; }
       totalKm=km;
       const base=hitungBase(km);
       tarif+=base;
-      breakdown.push({label:`Jarak (${km} km)`,amount:base});
-    }else{
-      const raw=(jarakMultiInput?.value||'').toString().trim();
+      breakdown.push({label:`Jarak (${km} km)`, amount:base});
+    } else {
+      const raw=(jarakMultiInput.value||'').toString().trim();
       const km=parseFloat(raw.replace(',','.'));
-      if(isNaN(km)||km<=0||km>1000){hasilTarifEl.textContent='Masukkan jarak total yang benar.';return;}
+      if(isNaN(km)||km<=0){ alert('Masukkan jarak total.'); return; }
       totalKm=km;
-      const base=hitungBase(km);
-      tarif+=base;
-      breakdown.push({label:`Jarak total (${km} km)`,amount:base});
-      const online=parseInt(titikOnlineInput?.value,10)||0;
-      const offline=parseInt(titikOfflineInput?.value,10)||0;
-        if (online > 0) {
-            const biayaOnline = calcOnlinePoints(online);
-            tarif += biayaOnline;
-            breakdown.push({ label: `Titik Online x${online}`, amount: biayaOnline });
-        }
-
-        if (offline > 0) {
-            const biayaOffline = calcOfflinePoints(offline);
-            tarif += biayaOffline;
-            breakdown.push({ label: `Titik Offline x${offline}`, amount: biayaOffline });
-        }
+      tarif+=hitungBase(km);
+      breakdown.push({label:`Jarak total (${km} km)`, amount:hitungBase(km)});
+      
+      const on=parseInt(titikOnlineInput.value||0,10);
+      const off=parseInt(titikOfflineInput.value||0,10);
+      if(on>0){ const b=calcOnlinePoints(on); tarif+=b; breakdown.push({label:`Titik Online x${on}`, amount:b}); }
+      if(off>0){ const b=calcOfflinePoints(off); tarif+=b; breakdown.push({label:`Titik Offline x${off}`, amount:b}); }
     }
 
-    const cuaca=(root.querySelector('input[name="cuaca"]:checked')||{}).value||'none';
-    if(cuaca&&cuaca!=='none'){
-      const unit4=Math.max(1,Math.ceil(totalKm/4));
-      let tambahan=0;
-      if(cuaca==='deras')tambahan=unit4*5000;
-      tarif+=tambahan;
-      breakdown.push({label:`Cuaca (${cuaca}) x${unit4}`,amount:tambahan});
+    // --- Kalkulasi Tambahan ---
+    const cuaca=root.querySelector('input[name="cuaca"]:checked').value;
+    if(cuaca==='deras'){ 
+       const unit=Math.max(1,Math.ceil(totalKm/4)); 
+       const b=unit*5000; tarif+=b; 
+       breakdown.push({label:`Hujan x${unit}`, amount:b}); 
     }
 
-    const zonaVal=(root.querySelector('input[name="zona"]:checked')||{}).value||'0';
-    if(zonaVal==='1'){
-      tarif+=2000;breakdown.push({label:'Zona 1',amount:2000});
-    }else if(zonaVal==='luar'){
-      const jarakZ=parseFloat((jarakZonaLuar.value||'0').toString().replace(',','.'))||0;
-      if(isNaN(jarakZ)||jarakZ<=0){alert('Isi jarak luar zona dengan benar.');return;}
-      const tambahZona=Math.max(2000,jarakZ*2200);
-      tarif+=tambahZona;
-      breakdown.push({label:`Titik jemput luar zona (${jarakZ} km)`,amount:Math.floor(tambahZona)});
+    const zona=root.querySelector('input[name="zona"]:checked').value;
+    if(zona==='1'){ tarif+=2000; breakdown.push({label:'Zona 1', amount:2000}); }
+    else if(zona==='luar'){
+       const jz=parseFloat(jarakZonaLuar.value.replace(',','.')||0);
+       if(jz>0){ const b=Math.max(2000, jz*2200); tarif+=b; breakdown.push({label:`Luar Zona (${jz}km)`, amount:Math.floor(b)}); }
     }
 
-    const itemPasarBiasa=parseInt(root.querySelector('#itemPasarBiasa').value,10)||0;
-    const itemPasarKhusus=parseInt(root.querySelector('#itemPasarKhusus').value,10)||0;
-    const tokoMall=parseInt(root.querySelector('#itemMall').value,10)||0;
-    const tokoSMarket=parseInt(root.querySelector('#itemSMarket').value,10)||0;
-    const tokoMini=parseInt(root.querySelector('#itemMinimarket').value,10)||0;
+    // Belanja & Lainnya
+    const items = [
+        {id:'#itemPasarBiasa',  p:750,  n:'Pasar Biasa'},
+        {id:'#itemPasarKhusus', p:1250, n:'Pasar Khusus'},
+        {id:'#itemMall',        p:3500, n:'Mall'},
+        {id:'#itemSMarket',     p:1250, n:'Supermarket'},
+        {id:'#itemMinimarket',  p:500,  n:'Minimarket'}
+    ];
+    items.forEach(i => {
+        const val = parseInt(root.querySelector(i.id).value||0, 10);
+        if(val>0){ const b=val*i.p; tarif+=b; breakdown.push({label:`${i.n} x${val}`, amount:b}); }
+    });
 
-    if(itemPasarBiasa>0){const amt=itemPasarBiasa*750;tarif+=amt;breakdown.push({label:`Belanja Pasar (biasa) x${itemPasarBiasa}`,amount:amt});}
-    if(itemPasarKhusus>0){const amt=itemPasarKhusus*1250;tarif+=amt;breakdown.push({label:`Belanja Pasar (khusus) x${itemPasarKhusus}`,amount:amt});}
-    if(tokoMall>0){const amt=tokoMall*3500;tarif+=amt;breakdown.push({label:`Mall x${tokoMall}`,amount:amt});}
-    if(tokoSMarket>0){const amt=tokoSMarket*1250;tarif+=amt;breakdown.push({label:`Supermarket x${tokoSMarket}`,amount:amt});}
-    if(tokoMini>0){const amt=tokoMini*500;tarif+=amt;breakdown.push({label:`Minimarket x${tokoMini}`,amount:amt});}
+    const checks = [
+        {id:'#belanjaKFC', p:2000, n:'KFC'}, {id:'#belanjaMieGacoan', p:2000, n:'Mie Gacoan'},
+        {id:'#bRicheese', p:2000, n:'Richeese'}, {id:'#rsu', p:2000, n:'RS'},
+        {id:'#fotoKopi', p:5000, n:'Fotokopi'}, {id:'#gilingDaging', p:5000, n:'Giling Daging'},
+        {id:'#Parkir', p:2000, n:'Parkir'}, {id:'#JalanRusak', p:5000, n:'Jalan Rusak'}
+    ];
+    checks.forEach(c => {
+        if(root.querySelector(c.id).checked){ tarif+=c.p; breakdown.push({label:c.n, amount:c.p}); }
+    });
 
-    if(root.querySelector('#belanjaKFC').checked){tarif+=2000;breakdown.push({label:'KFC',amount:2000});}
-    if(root.querySelector('#belanjaMieGacoan').checked){tarif+=2000;breakdown.push({label:'Mie Gacoan',amount:2000});}
-    if(root.querySelector('#bRicheese').checked){tarif+=2000;breakdown.push({label:'Richeese',amount:2000});}
-    if(root.querySelector('#rsu').checked){tarif+=2000;breakdown.push({label:'Rumah Sakit',amount:2000});}
-    if(root.querySelector('#fotoKopi').checked){tarif+=5000;breakdown.push({label:'Fotokopi/Cetak',amount:5000});}
-    if(root.querySelector('#gilingDaging').checked){tarif+=5000;breakdown.push({label:'Giling Daging',amount:5000});}
-    if(root.querySelector('#Parkir').checked){tarif+=2000;breakdown.push({label:'Parkir',amount:2000});}
-    if(root.querySelector('#JalanRusak').checked){tarif+=5000;breakdown.push({label:'Jalanan Rusak (sedang)',amount:5000});}
+    const wait=parseInt(root.querySelector('#waktuTunggu').value||0,10);
+    if(wait>0){ const b=hitungWaktuTunggu(wait); if(b>0){ tarif+=b; breakdown.push({label:`Tunggu (${wait}m)`, amount:b}); }}
 
-    const menitTunggu=parseInt((root.querySelector('#waktuTunggu')?.value||'0'),10)||0;
-    if(menitTunggu>0){
-      const biayaTunggu=hitungWaktuTunggu(menitTunggu);
-      if(biayaTunggu>0){
-        tarif+=biayaTunggu;
-        breakdown.push({label:`Waktu tunggu (${menitTunggu} menit)`,amount:biayaTunggu});
-      }
+    // Malam
+    const now=new Date(); const h=now.getHours();
+    let nightP=0; 
+    if(h>=23)nightP=5000; else if(h>=22)nightP=2000; else if(h>=21)nightP=1000;
+    if(nightP>0){
+        const unit=Math.max(1,Math.ceil(totalKm/4));
+        const b=unit*nightP; tarif+=b; breakdown.push({label:`Malam x${unit}`, amount:b});
     }
 
-    const now=new Date();
-    const hour=now.getHours();
-    let nightRatePerUnit=0;
-    if(hour>=23)nightRatePerUnit=5000;
-    else if(hour>=22)nightRatePerUnit=2000;
-    else if(hour>=21)nightRatePerUnit=1000;
-    if(nightRatePerUnit>0){
-      const kmForNight=Math.max(0,totalKm||0);
-      const units=Math.max(1,Math.ceil(kmForNight/4));
-      const nightFeeTotal=nightRatePerUnit*units;
-      tarif+=nightFeeTotal;
-      const hh=String(hour).padStart(2,'0');
-      const mm=String(now.getMinutes()).padStart(2,'0');
-      breakdown.push({label:`Malam (${hh}:${mm}) x${units} (per 4 km)`,amount:nightFeeTotal});
-    }
-
+    // C. TAMPILKAN HASIL
     tarif=Math.ceil(tarif/1000)*1000;
     hasilTarifEl.textContent='Rp '+tarif.toLocaleString('id-ID');
     rincianEl.innerHTML=breakdown.map(b=>`<div>${b.label}: <strong>Rp ${b.amount.toLocaleString('id-ID')}</strong></div>`).join('');
-    if(window.innerWidth<640)hasilTarifEl.scrollIntoView({behavior:'smooth',block:'center'});
+
+    // D. UBAH TOMBOL JADI HIJAU (SIAP KIRIM)
+    btnHitung.innerText = "KIRIM ONGKIR KE TELEGRAM";
+    btnHitung.classList.add('ready-to-send'); // Tambah class CSS hijau
+    
+    // Scroll ke bawah di HP
+    if(window.innerWidth<640) hasilTarifEl.scrollIntoView({behavior:'smooth',block:'center'});
   });
+
+  // Reset tombol jadi biru jika user mengubah input apapun
+  const allInputs = root.querySelectorAll('input');
+  allInputs.forEach(input => {
+      input.addEventListener('input', () => {
+          if(btnHitung.classList.contains('ready-to-send')){
+              btnHitung.innerText = "Cek Ongkir (Update)";
+              btnHitung.classList.remove('ready-to-send');
+              btnHitung.style.background = ""; // Reset warna
+          }
+      });
+  });
+
+  // Init Collapsible
+  function initCollapsible(panelId) {
+     const panel = document.getElementById(panelId);
+     if (!panel) return;
+     const header = panel.querySelector('.panel-header');
+     const content = panel.querySelector('.panel-content');
+     let expanded = false;
+     header.addEventListener('click', () => {
+        expanded = !expanded;
+        if(expanded) { panel.classList.remove('collapsed'); content.style.maxHeight = content.scrollHeight + 'px'; }
+        else { panel.classList.add('collapsed'); content.style.maxHeight = '0px'; }
+     });
+  }
+  initCollapsible('panel-opsi-tambahan');
+
 })();
 </script>
-
-<script>
-  (function() {
-    function initCollapsible(panelId) {
-      const panel = document.getElementById(panelId);
-      if (!panel) return;
-      const header = panel.querySelector('.panel-header');
-      const toggleBtn = panel.querySelector('.panel-toggle');
-      const content = panel.querySelector('.panel-content');
-
-      // pastikan toggle btn mudah seleksi
-      toggleBtn.classList.add('panel-toggle-btn');
-
-      function setExpanded(expanded) {
-        header.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-        content.setAttribute('aria-hidden', expanded ? 'false' : 'true');
-        toggleBtn.setAttribute('aria-pressed', expanded ? 'true' : 'false');
-        toggleBtn.textContent = expanded ? 'Sembunyikan' : 'Tampilkan';
-        if (expanded) {
-          panel.classList.remove('collapsed');
-          content.style.maxHeight = content.scrollHeight + 'px';
-          // enable semua controls di dalam content
-          content.querySelectorAll('input,select,textarea,button').forEach(el => {
-            if (el.classList.contains('panel-toggle-btn')) return;
-            el.disabled = false;
-          });
-        } else {
-          panel.classList.add('collapsed');
-          content.style.maxHeight = '0px';
-          // disable semua controls di dalam content agar tidak ikut terpakai
-          content.querySelectorAll('input,select,textarea,button').forEach(el => {
-            if (el.classList.contains('panel-toggle-btn')) return;
-            el.disabled = true;
-          });
-        }
-      }
-
-      // toggle event (header click or button click)
-      header.addEventListener('click', (e) => {
-        // abaikan klik jika target adalah elemen form di header (tidak ada di contoh)
-        const expanded = header.getAttribute('aria-expanded') === 'true';
-        setExpanded(!expanded);
-      });
-      header.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
-      });
-
-      // init: collapsed (hide) by default
-      setExpanded(false);
-
-      // beri sedikit delay agar scrollHeight dapat dihitung saat expand nanti
-      setTimeout(() => { if (!panel.classList.contains('collapsed')) content.style.maxHeight = content.scrollHeight + 'px'; }, 10);
-    }
-
-    initCollapsible('panel-opsi-tambahan');
-  })();
-</script>
-    bb
+    bbcc
 </body>
 </html>
