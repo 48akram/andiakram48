@@ -557,21 +557,49 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
-function kirimDataKeBot() {
-    // Contoh mengambil data dari input di website Sensei
-    const rincian = document.getElementById("rincianTarif").value; // Ambil rincian barang
-    const harga = document.getElementById("hasilTarif").value;     // Ambil total harga ongkir
+  // Inisialisasi Telegram WebApp
+  const tg = window.Telegram.WebApp;
+  tg.expand(); // Agar WebApp langsung terbuka penuh
 
-    // Gabungkan data dalam format string yang mudah dibaca bot
-    // Kita gunakan pemisah unik, misalnya "|"
-    const dataString = harga + "|" + rincian;
+  // Modifikasi fungsi hitung yang sudah ada atau tambahkan tombol kirim
+  // Di sini saya tambahkan fungsi kirim yang benar
+  function kirimDataKeBot() {
+    const hasilTarifEl = document.getElementById("hasilTarif");
+    const rincianEl = document.getElementById("rincianTarif");
 
-    // Kirim data ke Bot Telegram
-    Telegram.WebApp.sendData(dataString);
+    // 1. Ambil teks dan bersihkan (Hapus "Rp" dan titik/koma agar jadi angka bersih)
+    const hargaTeks = hasilTarifEl.innerText; // Contoh: "Rp 15.000"
+    const hargaBersih = hargaTeks.replace(/[^0-9]/g, ''); 
     
-    // Tutup WebApp otomatis
-    Telegram.WebApp.close();
-}
+    // 2. Ambil rincian (Ganti baris baru dengan koma agar tidak berantakan di Telegram)
+    const rincianTeks = rincianEl.innerText.replace(/\n/g, ", ");
+
+    if (!hargaBersih || hargaBersih === "0" || hargaBersih === "") {
+        alert("Silakan hitung ongkir dulu!");
+        return;
+    }
+
+    // 3. Gabungkan data dengan pemisah "|"
+    // Format: Harga|Rincian
+    const dataString = hargaBersih + "|" + rincianTeks;
+
+    // 4. Kirim ke Bot
+    tg.sendData(dataString);
+  }
+
+  // Tambahkan Event Listener ke tombol yang sudah ada
+  // Jadi setelah Driver klik "Cek Ongkir", tombolnya berubah jadi "Kirim ke Bot"
+  const btnHitung = document.getElementById('btnHitung');
+  btnHitung.addEventListener('click', function() {
+      // Kita beri sedikit delay agar perhitungan selesai dulu
+      setTimeout(() => {
+          btnHitung.innerText = "Kirim Hasil ke Telegram";
+          btnHitung.style.background = "#28a745"; // Ubah warna jadi hijau
+          
+          // Ubah fungsinya: Klik kedua kali akan mengirim data
+          btnHitung.onclick = kirimDataKeBot;
+      }, 500);
+  });
 </script>
 </body>
 </html>
