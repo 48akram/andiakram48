@@ -555,38 +555,52 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
   const tg = window.Telegram.WebApp;
-  tg.expand(); 
+  tg.expand();
 
   function kirimDataKeBot() {
-    const hasilTarifEl = document.getElementById("hasilTarif");
-    const rincianEl = document.getElementById("rincianTarif");
+    try {
+      const hasilTarifEl = document.getElementById("hasilTarif");
+      const rincianEl = document.getElementById("rincianTarif");
 
-    // Ambil angka saja dari teks "Rp 15.000"
-    const hargaTeks = hasilTarifEl.innerText;
-    const hargaBersih = hargaTeks.replace(/[^0-9]/g, ''); 
-    
-    // Ambil rincian dan bersihkan baris baru
-    const rincianTeks = rincianEl.innerText.replace(/\n/g, " | ");
+      // Log untuk cek di console browser
+      console.log("Mencoba kirim data...");
 
-    if (!hargaBersih || hargaBersih === "0") {
-        alert("Hitung dulu ongkirnya!");
-        return;
+      const hargaTeks = hasilTarifEl.innerText;
+      const hargaBersih = hargaTeks.replace(/[^0-9]/g, ''); 
+      const rincianTeks = rincianEl.innerText.replace(/\n/g, " | ");
+
+      if (!hargaBersih || hargaBersih === "0") {
+          alert("Hitung dulu ongkirnya!");
+          return;
+      }
+
+      const formatKirim = hargaBersih + "|" + rincianTeks;
+      
+      // DEBUG: Munculkan alert sebelum kirim untuk memastikan data siap
+      alert("Data siap kirim: " + formatKirim);
+
+      // KIRIM KE TELEGRAM
+      tg.sendData(formatKirim);
+      
+      // Jika sendData tidak jalan, WebApp tidak akan tertutup
+      tg.close();
+    } catch (err) {
+      alert("Error JS: " + err.message);
     }
-
-    // KIRIM DATA (PENTING: Format Harga|Rincian)
-    tg.sendData(hargaBersih + "|" + rincianTeks);
   }
 
-  // Pasangkan fungsi kirim ke tombol "Cek Ongkir" setelah kalkulasi
-  document.getElementById('btnHitung').addEventListener('click', function() {
-      // Tunggu 500ms agar kalkulasi HTML selesai, lalu ubah tombol
+  // Pasang ke tombol
+  document.getElementById('btnHitung').onclick = function() {
+      // Jalankan fungsi kalkulasi asli web Sensei dulu
+      // ... (fungsi hitung Sensei)
+      
+      // Beri tanda tombol siap kirim
       setTimeout(() => {
-          const btn = document.getElementById('btnHitung');
-          btn.innerText = "KIRIM ONGKIR KE BOT";
-          btn.style.background = "#28a745";
-          btn.onclick = kirimDataKeBot; // Klik berikutnya akan mengirim
+          this.innerText = "KIRIM KE TELEGRAM";
+          this.style.background = "green";
+          this.onclick = kirimDataKeBot;
       }, 500);
-  });
+  };
 </script>
 </body>
 </html>
