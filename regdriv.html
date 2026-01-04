@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontrak Mitra Driver</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: sans-serif; background-color: #f3f4f6; padding: 20px; }
+        .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
+        h2 { text-align: center; color: #1f2937; margin-bottom: 20px; }
+        
+        label { display: block; font-weight: bold; margin-top: 15px; font-size: 14px; color: #374151; }
+        input, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; }
+        
+        /* GAYA UNTUK KOTAK PERJANJIAN (PENTING) */
+        .contract-box {
+            background-color: #f9fafb;
+            border: 1px solid #d1d5db;
+            padding: 15px;
+            height: 150px; /* Tinggi tetap */
+            overflow-y: scroll; /* Agar bisa discroll */
+            margin-top: 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .checkbox-group { display: flex; align-items: flex-start; margin-top: 15px; gap: 10px; }
+        .checkbox-group input { width: 20px; height: 20px; margin-top: 0; cursor: pointer; }
+        .checkbox-group label { margin-top: 0; font-weight: normal; font-size: 14px; cursor: pointer; }
+
+        button { width: 100%; padding: 14px; background-color: #10b981; color: white; border: none; border-radius: 8px; margin-top: 20px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        button:disabled { background-color: #9ca3af; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📋 Registrasi Mitra Driver</h2>
+
+    <label>Nama Lengkap (Sesuai KTP)</label>
+    <input type="text" id="nama" placeholder="Nama Lengkap">
+
+    <label>NIK (Nomor KTP)</label>
+    <input type="tel" id="nik" placeholder="16 Digit NIK" maxlength="16">
+
+    <label>Nomor WhatsApp Aktif</label>
+    <input type="tel" id="wa" placeholder="08xxxxxxxxxx">
+
+    <label>Alamat Domisili</label>
+    <textarea id="alamat" rows="2"></textarea>
+
+    <label>Jenis Motor</label>
+    <input type="text" id="motor" placeholder="Contoh: Honda Beat 2020">
+
+    <label>Plat Nomor</label>
+    <input type="text" id="plat" placeholder="Contoh: DP 1234 XX">
+
+    <label>Syarat & Ketentuan Mitra</label>
+    <div class="contract-box">
+        <strong>PASAL 1: KEJUJURAN</strong><br>
+        1. Mitra wajib jujur dalam menjalankan tugas.<br>
+        2. Dilarang memanipulasi harga ongkir.<br><br>
+        
+        <strong>PASAL 2: SANKSI & DENDA</strong><br>
+        1. Jika terbukti mencuri barang/uang, Mitra bersedia dilaporkan ke pihak berwajib.<br>
+        2. Jika membatalkan order sepihak tanpa alasan jelas lebih dari 3x, akun akan dibekukan.<br>
+        3. Denda pelanggaran kode etik sebesar Rp 500.000.<br><br>
+        
+        <strong>PASAL 3: PERSETUJUAN</strong><br>
+        Dengan menekan tombol setuju di bawah ini, saya menyatakan data yang saya isi adalah BENAR dan saya siap menerima konsekuensi hukum apabila melanggar perjanjian ini.
+    </div>
+
+    <div class="checkbox-group">
+        <input type="checkbox" id="agree" onchange="toggleButton()">
+        <label for="agree">Saya telah membaca, memahami, dan menyetujui seluruh syarat & ketentuan di atas secara sadar tanpa paksaan.</label>
+    </div>
+
+    <button id="btnSubmit" onclick="kirimData()" disabled>✅ SAH & KIRIM DATA</button>
+</div>
+
+<script>
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+
+    // Hanya nyalakan tombol jika checkbox dicentang
+    function toggleButton() {
+        let cek = document.getElementById("agree").checked;
+        document.getElementById("btnSubmit").disabled = !cek;
+    }
+
+    function kirimData() {
+        let nama = document.getElementById("nama").value;
+        let nik = document.getElementById("nik").value;
+        let wa = document.getElementById("wa").value;
+        let alamat = document.getElementById("alamat").value;
+        let motor = document.getElementById("motor").value;
+        let plat = document.getElementById("plat").value;
+
+        if(!nama || !nik || !wa || !alamat || !motor || !plat) {
+            tg.showAlert("Mohon lengkapi semua data formulir.");
+            return;
+        }
+
+        // Ambil Waktu Persetujuan (Bukti Digital)
+        let waktuSetuju = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Makassar' });
+
+        let data = {
+            tipe: "reg_driver", // Penanda Khusus
+            nama: nama,
+            nik: nik,
+            wa: wa,
+            alamat: alamat,
+            motor: motor,
+            plat: plat,
+            waktu_setuju: waktuSetuju,
+            legal_text: "Menyetujui Kontrak Digital Kurir"
+        };
+
+        tg.sendData(JSON.stringify(data));
+    }
+</script>
+
+</body>
+</html>
