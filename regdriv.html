@@ -154,7 +154,7 @@
     let tg = window.Telegram.WebApp;
     tg.expand();
 
-    // --- LOGIKA ALAMAT (Sama dengan Form User) ---
+    // --- DATA WILAYAH (Sama seperti sebelumnya) ---
     const dataPinrang = {
         "Kecamatan Matirro Sompe": ["Kelurahan Langnga", "Kelurahan Pallameang", "Desa Massulowalie", "Desa Mattombong", "Desa Mattongang Tongang", "Desa Patobong", "Desa Samaenre", "Desa Mattirotasi", "Desa Siwolong Polong"],
         "Kecamatan Suppa": ["Kelurahan Watang Suppa", "Kelurahan Tellumpanua", "Desa Lero", "Desa Watang Pulu", "Desa Maritengngae", "Desa Tasiwalie", "Desa Wiringtasi", "Desa Lotang Salo", "Desa Ujung Labuang", "Desa Polewali"],
@@ -205,13 +205,14 @@
         }
     }
 
-    // --- LOGIKA KIRIM DATA ---
+    // --- LOGIKA UTAMA (VALIDASI & KIRIM) ---
     function toggleButton() {
         let cek = document.getElementById("agree").checked;
         document.getElementById("btnSubmit").disabled = !cek;
     }
 
     function kirimData() {
+        // Ambil Nilai & Hapus Spasi Depan/Belakang
         let nama = document.getElementById("nama").value.trim();
         let nik = document.getElementById("nik").value.trim();
         let wa = document.getElementById("wa").value.trim();
@@ -221,19 +222,34 @@
         let kota = document.getElementById("kota").value;
         let detail = document.getElementById("alamatDetail").value.trim();
 
-        // Validasi Dasar
+        // 1. Cek Data Kosong
         if(!nama || !nik || !wa || !motor || !plat || !kota || !detail) {
-            tg.showAlert("Mohon lengkapi semua kolom data!");
+            tg.showAlert("⚠️ Mohon lengkapi semua kolom data!");
             return;
         }
 
-        // Susun Alamat Lengkap
+        // 2. Validasi NIK (Harus 16 Digit)
+        if (nik.length !== 16) {
+            tg.showAlert("⚠️ NIK harus berjumlah 16 digit angka!");
+            return;
+        }
+
+        // 3. Validasi WA (Minimal 10 Digit)
+        if (wa.length < 10) {
+            tg.showAlert("⚠️ Nomor WhatsApp tidak valid (minimal 10 angka)!");
+            return;
+        }
+
+        // 4. Validasi Khusus Pinrang (Wajib Kecamatan & Desa)
         let alamatFull = detail + ", " + kota + ", Sulawesi Selatan";
+        
         if (kota === "Kabupaten Pinrang") {
             let kec = document.getElementById("kecamatan").value;
             let des = document.getElementById("desa").value;
-            if(!kec || !des) {
-                tg.showAlert("Mohon pilih Kecamatan dan Desa!");
+            
+            // Cek apakah user sudah memilih opsi (bukan default value kosong)
+            if (!kec || kec === "" || !des || des === "") {
+                tg.showAlert("⚠️ Untuk wilayah Pinrang, Kecamatan dan Desa WAJIB dipilih!");
                 return;
             }
             alamatFull = detail + ", " + des + ", " + kec + ", " + kota + ", Sulawesi Selatan";
@@ -250,10 +266,11 @@
             wa: wa,
             motor: motor,
             plat: plat,
-            alamat: alamatFull, // Alamat sudah digabung
+            alamat: alamatFull, 
             waktu_setuju: waktuSetuju
         };
 
+        // Kirim
         tg.sendData(JSON.stringify(data));
     }
 </script>
