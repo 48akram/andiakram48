@@ -6,117 +6,252 @@
     <title>Kontrak Mitra Driver</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background-color: #f3f4f6; padding: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f3f4f6; padding: 20px; color: #1f2937; }
         .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
-        h2 { text-align: center; color: #1f2937; margin-bottom: 20px; }
+        h2 { text-align: center; color: #1f2937; margin-bottom: 5px; margin-top: 0; }
+        p.subtitle { text-align: center; color: #6b7280; font-size: 13px; margin-bottom: 20px; }
         
-        label { display: block; font-weight: bold; margin-top: 15px; font-size: 14px; color: #374151; }
-        input, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; }
+        /* STYLE INPUT */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px; color: #374151; }
+        .required::after { content: " *"; color: red; }
         
-        /* GAYA UNTUK KOTAK PERJANJIAN (PENTING) */
+        input, select, textarea { 
+            width: 100%; padding: 10px; border: 1px solid #d1d5db; 
+            border-radius: 8px; box-sizing: border-box; font-size: 14px; background: #fff;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #2563eb; ring: 2px solid #bfdbfe; }
+        
+        .hidden { display: none; }
+
+        /* KOTAK KONTRAK */
         .contract-box {
-            background-color: #f9fafb;
-            border: 1px solid #d1d5db;
-            padding: 15px;
-            height: 150px; /* Tinggi tetap */
-            overflow-y: scroll; /* Agar bisa discroll */
-            margin-top: 20px;
-            border-radius: 8px;
-            font-size: 13px;
-            color: #4b5563;
-            line-height: 1.5;
+            background-color: #f9fafb; border: 1px solid #d1d5db; padding: 15px;
+            height: 150px; overflow-y: scroll; margin-top: 10px; border-radius: 8px;
+            font-size: 12px; color: #4b5563; line-height: 1.5; text-align: justify;
         }
 
-        .checkbox-group { display: flex; align-items: flex-start; margin-top: 15px; gap: 10px; }
-        .checkbox-group input { width: 20px; height: 20px; margin-top: 0; cursor: pointer; }
-        .checkbox-group label { margin-top: 0; font-weight: normal; font-size: 14px; cursor: pointer; }
+        /* CHECKBOX */
+        .checkbox-group { display: flex; align-items: flex-start; margin-top: 15px; gap: 10px; background: #f0fdf4; padding: 10px; border-radius: 8px; border: 1px solid #bbf7d0; }
+        .checkbox-group input { width: 20px; height: 20px; margin-top: 2px; cursor: pointer; }
+        .checkbox-group label { margin-top: 0; font-weight: 600; font-size: 13px; cursor: pointer; color: #166534; }
 
-        button { width: 100%; padding: 14px; background-color: #10b981; color: white; border: none; border-radius: 8px; margin-top: 20px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        /* TOMBOL */
+        button { width: 100%; padding: 14px; background-color: #2563eb; color: white; border: none; border-radius: 8px; margin-top: 20px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
         button:disabled { background-color: #9ca3af; cursor: not-allowed; }
+        button:hover:not(:disabled) { background-color: #1d4ed8; }
+
+        /* INFO BOX KTP */
+        .info-ktp { background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 8px; margin-top: 15px; font-size: 13px; color: #1e40af; display: flex; gap: 10px; align-items: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>📋 Registrasi Mitra Driver</h2>
+    <h2>📋 Registrasi Mitra</h2>
+    <p class="subtitle">Lengkapi data diri dan alamat domisili Anda.</p>
 
-    <label>Nama Lengkap (Sesuai KTP)</label>
-    <input type="text" id="nama" placeholder="Nama Lengkap">
+    <div class="form-group">
+        <label class="required">Nama Lengkap (Sesuai KTP)</label>
+        <input type="text" id="nama" placeholder="Nama Lengkap">
+    </div>
 
-    <label>NIK (Nomor KTP)</label>
-    <input type="tel" id="nik" placeholder="16 Digit NIK" maxlength="16">
+    <div class="form-group">
+        <label class="required">NIK (Nomor KTP)</label>
+        <input type="tel" id="nik" placeholder="16 Digit NIK" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+    </div>
 
-    <label>Nomor WhatsApp Aktif</label>
-    <input type="tel" id="wa" placeholder="08xxxxxxxxxx">
+    <div class="form-group">
+        <label class="required">Nomor WhatsApp Aktif</label>
+        <input type="tel" id="wa" placeholder="08xxxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+    </div>
 
-    <label>Alamat Domisili</label>
-    <textarea id="alamat" rows="2"></textarea>
+    <div class="form-group">
+        <label class="required">Jenis Motor</label>
+        <input type="text" id="motor" placeholder="Contoh: Honda Beat 2020">
+    </div>
 
-    <label>Jenis Motor</label>
-    <input type="text" id="motor" placeholder="Contoh: Honda Beat 2020">
+    <div class="form-group">
+        <label class="required">Plat Nomor</label>
+        <input type="text" id="plat" placeholder="Contoh: DP 1234 XX">
+    </div>
 
-    <label>Plat Nomor</label>
-    <input type="text" id="plat" placeholder="Contoh: DP 1234 XX">
+    <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+    
+    <label style="margin-bottom: 10px; font-size: 16px;">🏠 Alamat Domisili</label>
+    
+    <div class="form-group">
+        <label>Provinsi</label>
+        <select id="provinsi" disabled style="background-color: #f3f4f6;">
+            <option value="Sulawesi Selatan" selected>Sulawesi Selatan</option>
+        </select>
+    </div>
 
-    <label>Syarat & Ketentuan Mitra</label>
+    <div class="form-group">
+        <label class="required">Kota / Kabupaten</label>
+        <select id="kota" onchange="checkKota()">
+            <option value="" disabled selected>Pilih Kota/Kabupaten</option>
+            <option value="Kota Makassar">Kota Makassar</option>
+            <option value="Kota Pare-Pare">Kota Pare-Pare</option>
+            <option value="Kabupaten Pinrang">Kabupaten Pinrang</option>
+            <option value="Kabupaten Sidrap">Kabupaten Sidrap</option>
+            <option value="Kabupaten Enrekang">Kabupaten Enrekang</option>
+        </select>
+    </div>
+
+    <div id="pinrangArea" class="hidden">
+        <div class="form-group">
+            <label class="required">Kecamatan</label>
+            <select id="kecamatan" onchange="loadDesa()">
+                <option value="" disabled selected>Pilih Kecamatan</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="required">Kelurahan / Desa</label>
+            <select id="desa">
+                <option value="" disabled selected>Pilih Kelurahan/Desa</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="required">Detail Alamat</label>
+        <textarea id="alamatDetail" rows="2" placeholder="Nama Jalan, Nomor Rumah, RT/RW..."></textarea>
+    </div>
+
+    <label>📜 Syarat & Ketentuan Mitra</label>
     <div class="contract-box">
         <strong>PASAL 1: KEJUJURAN</strong><br>
-        1. Mitra wajib jujur dalam menjalankan tugas.<br>
-        2. Dilarang memanipulasi harga ongkir.<br><br>
+        1. Mitra wajib jujur dalam menjalankan tugas pengantaran.<br>
+        2. Dilarang memanipulasi harga ongkir kepada pelanggan.<br><br>
         
         <strong>PASAL 2: SANKSI & DENDA</strong><br>
-        1. Jika terbukti mencuri barang/uang, Mitra bersedia dilaporkan ke pihak berwajib.<br>
-        2. Jika membatalkan order sepihak tanpa alasan jelas lebih dari 3x, akun akan dibekukan.<br>
-        3. Denda pelanggaran kode etik sebesar Rp 500.000.<br><br>
+        1. Jika terbukti mencuri barang/uang, Mitra bersedia dilaporkan ke pihak berwajib dan didenda 10x lipat nilai barang.<br>
+        2. Membatalkan order sepihak >3x tanpa alasan jelas = Suspend Akun.<br>
+        3. Pelanggaran kode etik berat dikenakan denda administrasi Rp 500.000.<br><br>
         
         <strong>PASAL 3: PERSETUJUAN</strong><br>
-        Dengan menekan tombol setuju di bawah ini, saya menyatakan data yang saya isi adalah BENAR dan saya siap menerima konsekuensi hukum apabila melanggar perjanjian ini.
+        Dengan mencentang kotak di bawah, saya menyatakan data yang saya isi adalah BENAR dan saya siap menerima konsekuensi hukum apabila melanggar perjanjian ini.
     </div>
 
     <div class="checkbox-group">
         <input type="checkbox" id="agree" onchange="toggleButton()">
-        <label for="agree">Saya telah membaca, memahami, dan menyetujui seluruh syarat & ketentuan di atas secara sadar tanpa paksaan.</label>
+        <label for="agree">Saya SETUJU dengan seluruh syarat & ketentuan di atas.</label>
     </div>
 
-    <button id="btnSubmit" onclick="kirimData()" disabled>✅ SAH & KIRIM DATA</button>
+    <div class="info-ktp">
+        <span style="font-size: 20px;">📸</span>
+        <div>
+            <strong>INFO PENTING:</strong><br>
+            Setelah klik tombol di bawah, Anda wajib mengirimkan <strong>FOTO KTP</strong> di chat Telegram untuk verifikasi akhir.
+        </div>
+    </div>
+
+    <button id="btnSubmit" onclick="kirimData()" disabled>✅ KIRIM & LANJUT FOTO KTP</button>
 </div>
 
 <script>
     let tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Hanya nyalakan tombol jika checkbox dicentang
+    // --- LOGIKA ALAMAT (Sama dengan Form User) ---
+    const dataPinrang = {
+        "Kecamatan Matirro Sompe": ["Kelurahan Langnga", "Kelurahan Pallameang", "Desa Massulowalie", "Desa Mattombong", "Desa Mattongang Tongang", "Desa Patobong", "Desa Samaenre", "Desa Mattirotasi", "Desa Siwolong Polong"],
+        "Kecamatan Suppa": ["Kelurahan Watang Suppa", "Kelurahan Tellumpanua", "Desa Lero", "Desa Watang Pulu", "Desa Maritengngae", "Desa Tasiwalie", "Desa Wiringtasi", "Desa Lotang Salo", "Desa Ujung Labuang", "Desa Polewali"],
+        "Kecamatan Mattiro Bulu": ["Kelurahan Manarang", "Kelurahan Padaidi", "Desa Pananrang", "Desa Padakkalawa", "Desa Marannu", "Desa Alitta", "Desa Padaelo", "Desa Bunga", "Desa Makkawaru"],
+        "Kecamatan Watang Sawito": ["Kelurahan Jaya", "Kelurahan Sawito", "Kelurahan Maccoralaie", "Kelurahan Penrang", "Kelurahan Salo", "Kelurahan Bentengnge", "Kelurahan Sipatokkong", "Kelurahan Siparappe"],
+        "Kecamatan Patampanua": ["Kelurahan Benteng", "Kelurahan Teppo", "Kelurahan Tonyamang", "Kelurahan Maccirinna", "Desa Leppangang", "Desa Malimpung", "Desa Mattiroade", "Desa Sipatuo", "Desa Padangloang", "Desa Pincara", "Desa Masolo"],
+        "Kecamatan Duampanua": ["Kelurahan Pekkabata", "Kelurahan Tatae", "Kelurahan Lampa", "Kelurahan Data", "Kelurahan Bittoeng", "Desa Kaballangan", "Desa Paria", "Desa Kaliang", "Desa Battusawe", "Desa Maroneng", "Desa Katomporang", "Desa Bungi", "Desa Massewae", "Desa Bababinanga", "Desa Barugae"],
+        "Kecamatan Lembang": ["Kelurahan Taddokong", "Kelurahan Betteng", "Desa Binanga Karaeng", "Desa Rajang", "Desa Letta", "Desa Ulusaddang", "Desa Suppirang", "Desa Basseang", "Desa Kariango", "Desa Benteng Paremba", "Desa Pakeng", "Desa Lembang Mesakada", "Desa Sali Sali", "Desa Sabbang Paru", "Desa Bakaru", "Desa Pangaparang"],
+        "Kecamatan Cempa": ["Kelurahan Cempa", "Desa Mangki", "Desa Matunru Tunrue", "Desa Sikkuale", "Desa Tadangpalie", "Desa Salipolo", "Desa Tanra Tuo"],
+        "Kecamatan Tiroang": ["Kelurahan Pammase", "Kelurahan Marawi", "Kelurahan Pakkie", "Kelurahan Tiroang", "Kelurahan Mattiro Deceng"],
+        "Kecamatan Lansirang": ["Kelurahan Lansirang", "Desa Samaulue", "Desa Mallongi-longi", "Desa Amassangeng", "Desa Barang Palie", "Desa Waetuoe", "Desa Lerang"],
+        "Kecamatan Paleteang": ["Kelurahan Pacongang", "Kelurahan Macinnae", "Kelurahan Temmassarangnge", "Kelurahan Mamminasae", "Kelurahan Laleng Bata", "Kelurahan Benteng Sawito"],
+        "Kecamatan Batu Lappa": ["Desa Batu Lappa", "Kelurahan Kassa", "Desa Tapporang", "Desa Kaseralau", "Desa Watang Kassa"]
+    };
+
+    const kotaSelect = document.getElementById('kota');
+    const pinrangArea = document.getElementById('pinrangArea');
+    const kecamatanSelect = document.getElementById('kecamatan');
+    const desaSelect = document.getElementById('desa');
+
+    function checkKota() {
+        if (kotaSelect.value === "Kabupaten Pinrang") {
+            pinrangArea.classList.remove('hidden');
+            populateKecamatan();
+        } else {
+            pinrangArea.classList.add('hidden');
+        }
+    }
+
+    function populateKecamatan() {
+        kecamatanSelect.innerHTML = '<option value="" disabled selected>Pilih Kecamatan</option>';
+        for (let kec in dataPinrang) {
+            let option = document.createElement('option');
+            option.value = kec; option.text = kec;
+            kecamatanSelect.appendChild(option);
+        }
+    }
+
+    function loadDesa() {
+        const selectedKec = kecamatanSelect.value;
+        desaSelect.innerHTML = '<option value="" disabled selected>Pilih Kelurahan/Desa</option>';
+        if (selectedKec && dataPinrang[selectedKec]) {
+            dataPinrang[selectedKec].forEach(function(desa) {
+                let option = document.createElement('option');
+                option.value = desa; option.text = desa;
+                desaSelect.appendChild(option);
+            });
+        }
+    }
+
+    // --- LOGIKA KIRIM DATA ---
     function toggleButton() {
         let cek = document.getElementById("agree").checked;
         document.getElementById("btnSubmit").disabled = !cek;
     }
 
     function kirimData() {
-        let nama = document.getElementById("nama").value;
-        let nik = document.getElementById("nik").value;
-        let wa = document.getElementById("wa").value;
-        let alamat = document.getElementById("alamat").value;
-        let motor = document.getElementById("motor").value;
-        let plat = document.getElementById("plat").value;
+        let nama = document.getElementById("nama").value.trim();
+        let nik = document.getElementById("nik").value.trim();
+        let wa = document.getElementById("wa").value.trim();
+        let motor = document.getElementById("motor").value.trim();
+        let plat = document.getElementById("plat").value.trim();
+        
+        let kota = document.getElementById("kota").value;
+        let detail = document.getElementById("alamatDetail").value.trim();
 
-        if(!nama || !nik || !wa || !alamat || !motor || !plat) {
-            tg.showAlert("Mohon lengkapi semua data formulir.");
+        // Validasi Dasar
+        if(!nama || !nik || !wa || !motor || !plat || !kota || !detail) {
+            tg.showAlert("Mohon lengkapi semua kolom data!");
             return;
         }
 
-        // Ambil Waktu Persetujuan (Bukti Digital)
+        // Susun Alamat Lengkap
+        let alamatFull = detail + ", " + kota + ", Sulawesi Selatan";
+        if (kota === "Kabupaten Pinrang") {
+            let kec = document.getElementById("kecamatan").value;
+            let des = document.getElementById("desa").value;
+            if(!kec || !des) {
+                tg.showAlert("Mohon pilih Kecamatan dan Desa!");
+                return;
+            }
+            alamatFull = detail + ", " + des + ", " + kec + ", " + kota + ", Sulawesi Selatan";
+        }
+
+        // Ambil Waktu Persetujuan
         let waktuSetuju = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Makassar' });
 
+        // Paket Data JSON
         let data = {
-            tipe: "reg_driver", // Penanda Khusus
+            tipe: "reg_driver",
             nama: nama,
             nik: nik,
             wa: wa,
-            alamat: alamat,
             motor: motor,
             plat: plat,
-            waktu_setuju: waktuSetuju,
-            legal_text: "Menyetujui Kontrak Digital Kurir"
+            alamat: alamatFull, // Alamat sudah digabung
+            waktu_setuju: waktuSetuju
         };
 
         tg.sendData(JSON.stringify(data));
