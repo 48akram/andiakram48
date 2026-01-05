@@ -4,90 +4,254 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah Alamat Baru</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <style>
-        body { font-family: sans-serif; background: #f3f4f6; padding: 20px; }
-        .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
-        h3 { margin-top: 0; text-align: center; color: #1f2937; }
+        :root { --primary: #2563eb; --bg: #f3f4f6; --border: #d1d5db; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); padding: 20px; color: #1f2937; }
+
+        .container {
+            background-color: white; padding: 25px; border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto;
+        }
+        h2 { text-align: center; margin-bottom: 20px; font-size: 20px; }
         
-        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; }
-        label { font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #374151; }
+        .required::after { content: " *"; color: red; }
+
+        .form-control {
+            width: 100%; padding: 12px; border: 1px solid var(--border);
+            border-radius: 8px; font-size: 14px; background: #fff;
+        }
+        .form-control:focus { outline: none; border-color: var(--primary); ring: 2px solid #bfdbfe; }
+        textarea.form-control { resize: vertical; min-height: 80px; }
+
+        /* PETA & GPS BUTTON */
+        .map-wrapper { position: relative; height: 250px; width: 100%; margin-top: 5px; }
+        #map { height: 100%; width: 100%; border-radius: 8px; border: 2px solid var(--border); z-index: 1; }
         
-        #map { height: 250px; width: 100%; border-radius: 8px; margin-bottom: 15px; z-index: 1;}
-        button { width: 100%; padding: 14px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-gps {
+            position: absolute; bottom: 15px; right: 10px; z-index: 1000;
+            background-color: white; border: 2px solid #ccc; border-radius: 8px;
+            padding: 8px 12px; cursor: pointer; font-weight: bold; font-size: 13px;
+            color: #333; display: flex; align-items: center; gap: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .btn-gps:active { transform: translateY(1px); background-color: #f0f0f0; }
+
+        .btn-submit {
+            width: 100%; padding: 14px; background-color: var(--primary);
+            color: white; border: none; border-radius: 8px; font-size: 16px; 
+            font-weight: bold; cursor: pointer; margin-top: 20px;
+        }
+        .btn-submit:hover { background-color: #1d4ed8; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h3>📍 Tambah Alamat Baru</h3>
+    <h2>📍 Tambah Lokasi Baru</h2>
 
-    <label>Label Alamat (Contoh: Rumah, Kantor)</label>
-    <input type="text" id="label" placeholder="Rumah / Kantor / Sekolah">
+    <form id="alamatForm">
+        <div class="form-group">
+            <label class="required">Label Alamat</label>
+            <input type="text" id="label" class="form-control" placeholder="Contoh: Rumah, Kantor, Kosan...">
+        </div>
 
-    <label>Kota / Kabupaten</label>
-    <select id="kota" onchange="checkKota()">
-        <option value="" disabled selected>Pilih Kota</option>
-        <option value="Kota Makassar">Kota Makassar</option>
-        <option value="Kabupaten Pinrang">Kabupaten Pinrang</option>
-        </select>
+        <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 20px 0;">
 
-    <div id="pinrangArea" class="hidden">
-        <select id="kecamatan" onchange="loadDesa()"><option>Pilih Kecamatan</option></select>
-        <select id="desa" style="margin-top: 10px;"><option>Pilih Desa</option></select>
-    </div>
+        <div class="form-group">
+            <label class="required">Kota / Kabupaten</label>
+            <select id="kota" class="form-control" onchange="checkKota()">
+                <option value="" disabled selected>Pilih Kota/Kabupaten</option>
+                <option value="Kota Makassar">Kota Makassar</option>
+                <option value="Kota Pare-Pare">Kota Pare-Pare</option>
+                <option value="Kabupaten Pinrang">Kabupaten Pinrang</option>
+                <option value="Kabupaten Sidrap">Kabupaten Sidrap</option>
+                <option value="Kabupaten Enrekang">Kabupaten Enrekang</option>
+            </select>
+        </div>
 
-    <label>Detail Jalan / Patokan</label>
-    <textarea id="detail" rows="2" placeholder="Jalan Mawar No 5, Pagar Hitam..."></textarea>
+        <div id="pinrangArea" class="hidden">
+            <div class="form-group">
+                <label class="required">Kecamatan</label>
+                <select id="kecamatan" class="form-control" onchange="loadDesa()">
+                    <option value="" disabled selected>Pilih Kecamatan</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="required">Kelurahan / Desa</label>
+                <select id="desa" class="form-control">
+                    <option value="" disabled selected>Pilih Kelurahan/Desa</option>
+                </select>
+            </div>
+        </div>
 
-    <label>Titik Peta (Geser Pin)</label>
-    <div id="map"></div>
-    <button onclick="kirimData()">✅ SIMPAN ALAMAT</button>
+        <div class="form-group">
+            <label class="required">Detail Alamat</label>
+            <textarea id="alamatDetail" class="form-control" placeholder="Jalan, Blok, Nomor Rumah, Warna Pagar, Patokan..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="required">Titik Lokasi (Geser Pin)</label>
+            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                Tekan tombol 🎯 agar akurat.
+            </div>
+            
+            <div class="map-wrapper">
+                <div id="map"></div>
+                <button type="button" class="btn-gps" onclick="cariLokasiSaya()">
+                    🎯 Lokasi Saya
+                </button>
+            </div>
+            
+            <input type="hidden" id="latVal">
+            <input type="hidden" id="longVal">
+        </div>
+
+        <button type="button" onclick="kirimData()" class="btn-submit">✅ SIMPAN ALAMAT</button>
+    </form>
 </div>
 
 <script>
-    let tg = window.Telegram.WebApp; tg.expand();
+    let tg = window.Telegram.WebApp;
+    tg.expand();
 
-    // SETUP PETA
-    const defaultLat = -3.7995; const defaultLng = 119.6464; 
+    // --- SETUP PETA ---
+    const defaultLat = -3.7995; 
+    const defaultLng = 119.6464; 
+
     var map = L.map('map').setView([defaultLat, defaultLng], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     var marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
 
-    // DATA PINRANG (Sederhana)
-    const dataPinrang = { "Kecamatan Matirro Sompe": ["Kelurahan Langnga", "Desa Mattirotasi"], "Kecamatan Suppa": ["Kelurahan Watang Suppa", "Desa Lero"] }; 
-    // ... (Masukkan data lengkap kecamatan Anda di sini seperti file sebelumnya) ...
+    function updateInput(lat, lng) {
+        document.getElementById('latVal').value = lat;
+        document.getElementById('longVal').value = lng;
+    }
+    updateInput(defaultLat, defaultLng);
+
+    marker.on('dragend', function (e) {
+        var pos = marker.getLatLng();
+        updateInput(pos.lat, pos.lng);
+        map.panTo(pos);
+    });
+
+    function cariLokasiSaya() {
+        const btn = document.querySelector('.btn-gps');
+        btn.innerHTML = "⏳ Mencari...";
+        map.locate({setView: true, maxZoom: 17, enableHighAccuracy: true});
+    }
+
+    map.on('locationfound', function(e) {
+        document.querySelector('.btn-gps').innerHTML = "🎯 Lokasi Saya";
+        marker.setLatLng(e.latlng);
+        updateInput(e.latlng.lat, e.latlng.lng);
+        map.flyTo(e.latlng, 17);
+        tg.showAlert("Lokasi ditemukan! Silakan sesuaikan pin jika perlu.");
+    });
+
+    map.on('locationerror', function(e) {
+        document.querySelector('.btn-gps').innerHTML = "🎯 Lokasi Saya";
+        tg.showAlert("Gagal mengambil lokasi. Pastikan GPS aktif.");
+    });
+
+    // --- DATA WILAYAH LENGKAP ---
+    const dataPinrang = {
+        "Kecamatan Matirro Sompe": ["Kelurahan Langnga", "Kelurahan Pallameang", "Desa Massulowalie", "Desa Mattombong", "Desa Mattongang Tongang", "Desa Patobong", "Desa Samaenre", "Desa Mattirotasi", "Desa Siwolong Polong"],
+        "Kecamatan Suppa": ["Kelurahan Watang Suppa", "Kelurahan Tellumpanua", "Desa Lero", "Desa Watang Pulu", "Desa Maritengngae", "Desa Tasiwalie", "Desa Wiringtasi", "Desa Lotang Salo", "Desa Ujung Labuang", "Desa Polewali"],
+        "Kecamatan Mattiro Bulu": ["Kelurahan Manarang", "Kelurahan Padaidi", "Desa Pananrang", "Desa Padakkalawa", "Desa Marannu", "Desa Alitta", "Desa Padaelo", "Desa Bunga", "Desa Makkawaru"],
+        "Kecamatan Watang Sawito": ["Kelurahan Jaya", "Kelurahan Sawito", "Kelurahan Maccoralaie", "Kelurahan Penrang", "Kelurahan Salo", "Kelurahan Bentengnge", "Kelurahan Sipatokkong", "Kelurahan Siparappe"],
+        "Kecamatan Patampanua": ["Kelurahan Benteng", "Kelurahan Teppo", "Kelurahan Tonyamang", "Kelurahan Maccirinna", "Desa Leppangang", "Desa Malimpung", "Desa Mattiroade", "Desa Sipatuo", "Desa Padangloang", "Desa Pincara", "Desa Masolo"],
+        "Kecamatan Duampanua": ["Kelurahan Pekkabata", "Kelurahan Tatae", "Kelurahan Lampa", "Kelurahan Data", "Kelurahan Bittoeng", "Desa Kaballangan", "Desa Paria", "Desa Kaliang", "Desa Battusawe", "Desa Maroneng", "Desa Katomporang", "Desa Bungi", "Desa Massewae", "Desa Bababinanga", "Desa Barugae"],
+        "Kecamatan Lembang": ["Kelurahan Taddokong", "Kelurahan Betteng", "Desa Binanga Karaeng", "Desa Rajang", "Desa Letta", "Desa Ulusaddang", "Desa Suppirang", "Desa Basseang", "Desa Kariango", "Desa Benteng Paremba", "Desa Pakeng", "Desa Lembang Mesakada", "Desa Sali Sali", "Desa Sabbang Paru", "Desa Bakaru", "Desa Pangaparang"],
+        "Kecamatan Cempa": ["Kelurahan Cempa", "Desa Mangki", "Desa Matunru Tunrue", "Desa Sikkuale", "Desa Tadangpalie", "Desa Salipolo", "Desa Tanra Tuo"],
+        "Kecamatan Tiroang": ["Kelurahan Pammase", "Kelurahan Marawi", "Kelurahan Pakkie", "Kelurahan Tiroang", "Kelurahan Mattiro Deceng"],
+        "Kecamatan Lansirang": ["Kelurahan Lansirang", "Desa Samaulue", "Desa Mallongi-longi", "Desa Amassangeng", "Desa Barang Palie", "Desa Waetuoe", "Desa Lerang"],
+        "Kecamatan Paleteang": ["Kelurahan Pacongang", "Kelurahan Macinnae", "Kelurahan Temmassarangnge", "Kelurahan Mamminasae", "Kelurahan Laleng Bata", "Kelurahan Benteng Sawito"],
+        "Kecamatan Batu Lappa": ["Desa Batu Lappa", "Kelurahan Kassa", "Desa Tapporang", "Desa Kaseralau", "Desa Watang Kassa"]
+    };
+
+    const kotaSelect = document.getElementById('kota');
+    const pinrangArea = document.getElementById('pinrangArea');
+    const kecamatanSelect = document.getElementById('kecamatan');
+    const desaSelect = document.getElementById('desa');
 
     function checkKota() {
-        document.getElementById('pinrangArea').style.display = (document.getElementById('kota').value === "Kabupaten Pinrang") ? "block" : "none";
-        // ... (Logika populate kecamatan sama seperti sebelumnya) ...
+        if (kotaSelect.value === "Kabupaten Pinrang") {
+            pinrangArea.classList.remove('hidden');
+            populateKecamatan();
+        } else {
+            pinrangArea.classList.add('hidden');
+        }
     }
-    // ... (Logika populate desa sama seperti sebelumnya) ...
 
+    function populateKecamatan() {
+        kecamatanSelect.innerHTML = '<option value="" disabled selected>Pilih Kecamatan</option>';
+        for (let kec in dataPinrang) {
+            let option = document.createElement('option');
+            option.value = kec; option.text = kec;
+            kecamatanSelect.appendChild(option);
+        }
+    }
+
+    function loadDesa() {
+        const selectedKec = kecamatanSelect.value;
+        desaSelect.innerHTML = '<option value="" disabled selected>Pilih Kelurahan/Desa</option>';
+        if (selectedKec && dataPinrang[selectedKec]) {
+            dataPinrang[selectedKec].forEach(function(desa) {
+                let option = document.createElement('option');
+                option.value = desa; option.text = desa;
+                desaSelect.appendChild(option);
+            });
+        }
+    }
+
+    // --- FUNGSI KIRIM DATA ---
     function kirimData() {
-        let label = document.getElementById("label").value;
+        let label = document.getElementById("label").value.trim();
         let kota = document.getElementById("kota").value;
-        let detail = document.getElementById("detail").value;
-        let lat = marker.getLatLng().lat;
-        let lng = marker.getLatLng().lng;
+        let detail = document.getElementById("alamatDetail").value.trim();
+        let lat = document.getElementById("latVal").value;
+        let lng = document.getElementById("longVal").value;
 
-        if(!label || !kota || !detail) { tg.showAlert("Lengkapi data!"); return; }
+        // 1. Validasi
+        if(!label || !kota || !detail) {
+            tg.showAlert("Mohon lengkapi Label, Kota, dan Detail Alamat.");
+            return;
+        }
 
-        let fullAddr = detail + ", " + kota;
-        // Logic gabung kecamatan jika Pinrang...
+        // 2. Gabung Alamat
+        let alamatFull = detail + ", " + kota + ", Sulawesi Selatan";
+        if (kota === "Kabupaten Pinrang") {
+            let kec = document.getElementById("kecamatan").value;
+            let des = document.getElementById("desa").value;
+            if(!kec || !des) {
+                tg.showAlert("Mohon pilih Kecamatan dan Desa.");
+                return;
+            }
+            alamatFull = detail + ", " + des + ", " + kec + ", " + kota + ", Sulawesi Selatan";
+        }
 
+        // 3. Susun Data untuk Bot
         let data = {
-            tipe: "tambah_alamat",  // <--- PENANDA KHUSUS
+            tipe: "tambah_alamat",
             label: label,
-            alamat: fullAddr,
-            lat: lat,
-            long: lng
+            alamat: alamatFull,
+            lat: parseFloat(lat),
+            long: parseFloat(lng)
         };
+        
         tg.sendData(JSON.stringify(data));
     }
 </script>
+
 </body>
 </html>
