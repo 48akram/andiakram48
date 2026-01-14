@@ -2,142 +2,212 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cek Ongkir Kurir</title>
     <style>
-        /* --- CSS DASAR --- */
-        body { margin: 0; padding: 0; background-color: #f4f6f8; font-family: "Helvetica Neue", Arial, sans-serif; }
-        #kurir-widget { max-width:720px; margin:20px auto; padding:0; background: #fff; }
-        #kurir-widget * { box-sizing: border-box; }
-        
-        .card { padding: 15px; border: none; }
-        h2 { margin:0 0 14px 0; font-size:20px; text-align:center; color:#1f2d3d; }
-        
-        .form-group { margin-bottom:14px; }
-        label { display:block; font-weight:600; margin-bottom:6px; color:#3b4a59; font-size:14px; }
-        
-        input[type="number"], input[type="text"] {
-            width:100%; padding:10px 12px; border-radius:8px; border:1px solid #dfe7ef; font-size:14px;
+        /* --- RESET & VARIABLES --- */
+        :root {
+            --primary: #2476f7;
+            --primary-dark: #0f63e6;
+            --success: #28a745;
+            --text-main: #1f2d3d;
+            --text-sub: #52606d;
+            --border: #eef2f7;
+            --bg: #f8f9fa;
+            --danger: #e03131;
         }
+        body { margin: 0; padding: 0; background-color: var(--bg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
         
-        .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-        .helper { font-size:12px; color:#667583; margin-top:4px; }
-        .tandaku { color: #DC143C; }
-        .checkbox-label, .radio-label { display:flex; gap:8px; align-items:center; font-weight:500; color:#2f3f4f; cursor: pointer; }
-        .inline { display:inline-flex; gap:12px; flex-wrap:wrap; }
+        /* --- LAYOUT UTAMA --- */
+        #kurir-widget { max-width: 600px; margin: 0 auto; background: #fff; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+        .container { padding: 20px; }
+        
+        /* --- TYPOGRAPHY --- */
+        h2 { margin: 0 0 20px 0; font-size: 22px; text-align: center; color: var(--text-main); font-weight: 700; letter-spacing: -0.5px; }
+        h3 { font-size: 16px; margin: 0 0 10px 0; color: var(--text-main); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .helper { font-size: 12px; color: #8898aa; margin-top: 4px; line-height: 1.4; }
+        .section-title { margin-top: 25px; margin-bottom: 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #9aa5b1; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
 
-        /* Tombol Utama */
+        /* --- FORMS & INPUTS --- */
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; color: var(--text-sub); font-size: 14px; }
+        .tandaku { color: var(--danger); }
+        
+        /* Input Styling yang Nyaman di Jempol */
+        input[type="number"] {
+            width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #dfe3e8; 
+            font-size: 16px; background: #fff; transition: border 0.2s, box-shadow 0.2s;
+            -moz-appearance: textfield; /* Hilangkan spinner di Firefox */
+        }
+        input[type="number"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(36,118,247,0.1); }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        /* Grid Layout */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+        /* --- PILIHAN (RADIO & CHECKBOX) --- */
+        .radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .radio-card {
+            flex: 1; min-width: 120px; position: relative;
+        }
+        .radio-card input { position: absolute; opacity: 0; cursor: pointer; }
+        .radio-card label {
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            padding: 10px; background: #f4f6f8; border: 1px solid transparent; border-radius: 8px;
+            cursor: pointer; font-weight: 600; font-size: 14px; color: var(--text-sub); transition: all 0.2s;
+        }
+        /* State Aktif */
+        .radio-card input:checked + label { background: #ebf4ff; color: var(--primary); border-color: var(--primary); }
+
+        /* Checkbox List Styling */
+        .check-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .check-item label { 
+            display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-weight: 500; 
+            padding: 8px; border-radius: 6px; hover: background: #f9f9f9;
+        }
+
+        /* --- COLLAPSIBLE PANEL --- */
+        .panel { background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-top: 15px; }
+        .panel-header { padding: 12px 15px; background: #fcfcfc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .panel-title-text { font-weight: 600; color: var(--text-main); font-size: 14px; }
+        .panel-toggle-icon { font-size: 12px; color: var(--text-sub); background: #eef2f7; padding: 4px 8px; border-radius: 6px; }
+        .panel-content { padding: 0 15px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }
+        .panel.open .panel-content { padding: 15px; max-height: 1000px; }
+
+        /* --- BUTTON & RESULT --- */
+        .bottom-action { margin-top: 25px; padding-top: 20px; border-top: 2px dashed #eef2f7; }
         .cek-button {
-            display:block; width:100%; padding:14px; background:#2476f7; color:#fff; 
-            border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size: 16px;
-            transition: background 0.3s;
+            display: block; width: 100%; padding: 16px; background: var(--primary); color: #fff;
+            border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer;
+            box-shadow: 0 4px 6px rgba(36,118,247,0.25); transition: transform 0.1s, background 0.2s;
         }
-        .cek-button:hover { background:#0f63e6; }
-        .cek-button.ready-to-send { background: #28a745; }
+        .cek-button:active { transform: scale(0.98); }
+        .cek-button.ready-to-send { background: var(--success); box-shadow: 0 4px 6px rgba(40,167,69,0.25); }
 
-        /* Hasil */
-        .tarif { margin-top:18px; font-size:24px; font-weight:800; color:#17325a; text-align: center; }
-        .rincian { margin-top:12px; font-size:14px; color:#334455; line-height:1.6; border-top: 1px dashed #ccc; padding-top:10px; }
+        .tarif-display { text-align: center; margin-top: 20px; }
+        .tarif-value { font-size: 32px; font-weight: 800; color: var(--text-main); letter-spacing: -1px; }
+        .rincian-box { margin-top: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; font-size: 14px; color: var(--text-sub); }
+        .rincian-row { display: flex; justify-content: space-between; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dashed #e1e4e8; }
+        .rincian-row:last-child { border-bottom: none; margin-bottom: 0; }
+        .rincian-label { font-size: 13px; }
+        .rincian-val { font-weight: 700; color: var(--text-main); }
 
-        /* Panel Collapsible */
-        .panel { border:1px solid #e6eef6; border-radius:8px; background:#fbfdff; margin:10px 0; }
-        .panel-header { display:flex; justify-content:space-between; padding:10px; cursor:pointer; border-bottom:1px dashed #ccc; }
-        .panel-title { font-weight:600; color: #DC143C; }
-        .panel-toggle { border:1px solid #cfe8ff; background:transparent; padding:4px 10px; border-radius:6px; font-size:12px; cursor:pointer; }
-        .panel-content { padding:10px; overflow:hidden; transition: max-height 0.3s ease; }
-        .panel.collapsed .panel-content { max-height:0; padding:0; border:none; }
-        .panel.collapsed .panel-header { border-bottom: none; }
-
-        @media (max-width:640px) {
-            #kurir-widget { margin:0; }
-            .card { border-radius:0; }
+        @media (max-width: 480px) {
+            .grid-2 { grid-template-columns: 1fr; } /* Stack input di HP kecil */
+            .check-list { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
 <div id="kurir-widget">
-  <div class="card">
-    <h2>Hitung Ongkir</h2>
+    <div class="container">
+        <h2>Hitung Ongkir</h2>
 
-    <div class="form-group">
-      <label><span class="tandaku">*</span>Total Jarak (KM)</label>
-      <input id="jarakTotal" placeholder="Contoh: 4.5" type="number" step="0.1" inputmode="decimal" />
-      <div class="helper">Masukkan jarak total dari titik jemput sampai tujuan akhir.</div>
-    </div>
-
-    <div class="form-group">
-      <div class="grid-2">
-        <div>
-          <label>Titik Online</label>
-          <input id="titikOnline" placeholder="Jml (x4rb)" type="number" inputmode="numeric" />
+        <div class="form-group">
+            <label>Total Jarak (KM) <span class="tandaku">*</span></label>
+            <input id="jarakTotal" type="number" step="0.1" inputmode="decimal" placeholder="0.0" style="font-size: 20px; font-weight: bold; color: #2476f7;">
         </div>
-        <div>
-          <label>Titik Offline</label>
-          <input id="titikOffline" placeholder="Jml (x5rb)" type="number" inputmode="numeric" />
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Titik Online (4rb)</label>
+                <input id="titikOnline" type="number" inputmode="numeric" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Titik Offline (5rb)</label>
+                <input id="titikOffline" type="number" inputmode="numeric" placeholder="0">
+            </div>
         </div>
-      </div>
-      <div class="helper">Kosongkan jika hanya 1 titik antar.</div>
-    </div>
 
-    <div class="form-group">
-      <label><span class="tandaku">*</span>Lokasi Jemput</label>
-      <div class="inline">
-        <label class="radio-label"><input checked name="zona" type="radio" value="0" /> Dalam Kota</label>
-        <label class="radio-label"><input name="zona" type="radio" value="luar" /> Luar Batas (+2rb/km)</label>
-      </div>
-      <input id="jarakZonaLuar" placeholder="Jarak dari batas kota (km)" style="display: none; margin-top:8px;" type="number" />
-    </div>
+        <div class="form-group">
+            <label>Waktu Tunggu (Menit)</label>
+            <input id="waktuTunggu" type="number" inputmode="numeric" placeholder="Gratis 9 menit awal">
+        </div>
 
-    <div class="form-group">
-      <label>Waktu Tunggu (Menit)</label>
-      <input id="waktuTunggu" placeholder="Gratis 9 menit awal" type="number" />
-    </div>
-
-    <div class="panel collapsed" id="panel-opsi">
-      <div class="panel-header">
-        <div class="panel-title">Biaya Tambahan & Belanja</div>
-        <button class="panel-toggle" type="button">Buka</button>
-      </div>
-      <div class="panel-content">
+        <div class="section-title">Kondisi</div>
         
         <div class="form-group">
+            <label>Lokasi Jemput</label>
+            <div class="radio-group">
+                <div class="radio-card">
+                    <input type="radio" name="zona" value="0" id="z_kota" checked>
+                    <label for="z_kota">Dalam Kota</label>
+                </div>
+                <div class="radio-card">
+                    <input type="radio" name="zona" value="luar" id="z_luar">
+                    <label for="z_luar">Luar Batas (+)</label>
+                </div>
+            </div>
+            <input id="jarakZonaLuar" type="number" inputmode="decimal" placeholder="Jarak dari batas kota (KM)" style="display:none; margin-top:10px;">
+        </div>
+
+        <div class="form-group">
             <label>Cuaca</label>
-            <div class="inline">
-              <label class="radio-label"><input checked name="cuaca" type="radio" value="none" /> Normal</label>
-              <label class="radio-label"><input name="cuaca" type="radio" value="hujan" /> Hujan (+5rb)</label>
+            <div class="radio-group">
+                <div class="radio-card">
+                    <input type="radio" name="cuaca" value="none" id="c_normal" checked>
+                    <label for="c_normal">☀️ Normal</label>
+                </div>
+                <div class="radio-card">
+                    <input type="radio" name="cuaca" value="hujan" id="c_hujan">
+                    <label for="c_hujan">🌧️ Hujan (+5rb)</label>
+                </div>
             </div>
         </div>
 
-        <div class="form-group">
-            <label>Jasa Belanja</label>
-            <div class="grid-2">
-                <input id="itemPasar" placeholder="Pasar Biasa (x750)" type="number" />
-                <input id="itemPasarKhusus" placeholder="Pasar Khusus (x1250)" type="number" />
-                <input id="itemMall" placeholder="Mall (x3500)" type="number" />
-                <input id="itemIndo" placeholder="Indomaret (x500)" type="number" />
+        <div class="panel" id="panel-extra">
+            <div class="panel-header">
+                <span class="panel-title-text">🛒 Jasa Belanja & Layanan Lain</span>
+                <span class="panel-toggle-icon">Buka/Tutup</span>
+            </div>
+            <div class="panel-content">
+                <div class="grid-2" style="margin-bottom: 15px;">
+                    <div>
+                        <label>Pasar/Indo (1rb/item)</label>
+                        <input id="itemStd" type="number" inputmode="numeric" placeholder="Qty">
+                    </div>
+                    <div>
+                        <label>Dept. Store (2rb/item)</label>
+                        <input id="itemDept" type="number" inputmode="numeric" placeholder="Qty">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Mall/Gedung (3.5rb/item)</label>
+                    <input id="itemMall" type="number" inputmode="numeric" placeholder="Qty">
+                </div>
+
+                <div class="section-title" style="margin-top: 0;">Layanan Tambahan</div>
+                <div class="grid-2">
+                    <div>
+                        <label>Sesi Foto (3rb)</label>
+                        <input id="qtyFoto" type="number" inputmode="numeric" placeholder="Jml Sesi">
+                    </div>
+                    <div>
+                        <label>Parkir (2rb)</label>
+                        <input id="qtyParkir" type="number" inputmode="numeric" placeholder="Kali Parkir">
+                    </div>
+                </div>
+
+                <div class="check-list" style="margin-top: 15px;">
+                    <div class="check-item"><label><input id="cekKFC" type="checkbox"> KFC/Mcd (+2rb)</label></div>
+                    <div class="check-item"><label><input id="cekGacoan" type="checkbox"> Gacoan (+2rb)</label></div>
+                    <div class="check-item"><label><input id="cekRS" type="checkbox"> Masuk RS (+2rb)</label></div>
+                    <div class="check-item"><label><input id="cekJalan" type="checkbox"> Jalan Rusak (+5rb)</label></div>
+                </div>
             </div>
         </div>
 
-        <div class="form-group">
-            <label>Layanan Lain</label>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                <label class="checkbox-label"><input id="cekFoto" type="checkbox" /> Foto Belanja (+3rb)</label>
-                <label class="checkbox-label"><input id="cekParkir" type="checkbox" /> Parkir (+2rb)</label>
-                <label class="checkbox-label"><input id="cekKFC" type="checkbox" /> KFC/Mcd (+2rb)</label>
-                <label class="checkbox-label"><input id="cekGacoan" type="checkbox" /> Gacoan (+2rb)</label>
-                <label class="checkbox-label"><input id="cekRS" type="checkbox" /> Masuk RS (+2rb)</label>
-                <label class="checkbox-label"><input id="cekJalan" type="checkbox" /> Jalan Rusak (+5rb)</label>
+        <div class="bottom-action">
+            <button id="btnHitung" class="cek-button">HITUNG ONGKIR</button>
+            
+            <div class="tarif-display">
+                <div id="hasilTarif" class="tarif-value">Rp -</div>
             </div>
+            <div id="rincianTarif" class="rincian-box" style="display:none;"></div>
         </div>
-      </div>
     </div>
-
-    <button class="cek-button" id="btnHitung" type="button">CEK ONGKIR</button>
-
-    <div class="tarif" id="hasilTarif">Rp -</div>
-    <div aria-live="polite" class="rincian" id="rincianTarif"></div>
-  </div>
 </div>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -148,8 +218,7 @@
   const urlParams = new URLSearchParams(window.location.search);
   const orderID = urlParams.get('oid') || "0"; 
 
-  // Selectors
-  const root = document.getElementById('kurir-widget');
+  // --- ELEMEN ---
   const btnHitung = document.getElementById('btnHitung');
   const hasilEl = document.getElementById('hasilTarif');
   const rincianEl = document.getElementById('rincianTarif');
@@ -161,14 +230,14 @@
       offline: document.getElementById('titikOffline'),
       zonaLuar: document.getElementById('jarakZonaLuar'),
       tunggu: document.getElementById('waktuTunggu'),
-      // Belanja
-      psBiasa: document.getElementById('itemPasar'),
-      psKhusus: document.getElementById('itemPasarKhusus'),
+      // Belanja (Baru)
+      std: document.getElementById('itemStd'),
+      dept: document.getElementById('itemDept'),
       mall: document.getElementById('itemMall'),
-      indo: document.getElementById('itemIndo'),
-      // Checkbox
-      foto: document.getElementById('cekFoto'),
-      parkir: document.getElementById('cekParkir'),
+      // Layanan Qty (Baru)
+      foto: document.getElementById('qtyFoto'),
+      parkir: document.getElementById('qtyParkir'),
+      // Checkbox Sisa
       kfc: document.getElementById('cekKFC'),
       gacoan: document.getElementById('cekGacoan'),
       rs: document.getElementById('cekRS'),
@@ -181,100 +250,70 @@
       el.zonaLuar.style.display = (r.value === 'luar') ? 'block' : 'none';
   }));
 
-  // --- LOGIKA UTAMA ---
+  // --- LOGIKA PERHITUNGAN ---
 
   function hitungBase(km) {
     let base = 0;
-    // Tarif Dasar Normal (Siang)
-    // Menggunakan logika: 0-2km: 8rb, lalu naik bertahap
+    // 0-2km: 8rb, lalu naik bertahap
     if (km <= 2.0) base = 8000;
     else if (km <= 3.0) base = 10000;
     else if (km <= 4.0) base = 12000;
     else if (km <= 5.0) base = 14000;
     else if (km <= 6.0) base = 16000;
     else {
-        // Diatas 6KM (Siang)
+        // > 6KM (Siang) -> 16rb + 2.500/km
         base = 16000 + Math.ceil(km - 6.0) * 2500;
     }
     return base;
   }
 
   function getNightSurcharge(hour, km) {
-      // Mengembalikan object { fee: 0, label: "" }
       let fee = 0;
       let label = "";
 
-      // 1. JAM 18.00 - 21.59 (Malam Awal)
-      if (hour >= 18 && hour <= 21) {
-          // <= 4km: Rp 0
-          // > 4km: Rp 800/km
-          // > 15km: Rp 1.000/km (Graduated/Bertingkat)
+      // LOGIKA MALAM LENGKAP (Sesuai Request Sebelumnya)
+      if (hour >= 18 && hour <= 21) { // 18-21:59
           if (km > 4) {
-             let sisa = km - 4; // Jarak yang kena cas
-             
-             // Cek jika tembus 15km
-             if (sisa > 11) { // 15 - 4 = 11 km pertama kena 800
-                 fee += 11 * 800; // 8.800
-                 let sisaJauh = sisa - 11;
-                 fee += sisaJauh * 1000;
+             let sisa = km - 4;
+             if (sisa > 11) { // > 15km total
+                 fee += 11 * 800; 
+                 fee += (sisa - 11) * 1000;
              } else {
                  fee += sisa * 800;
              }
              label = "Malam (18-22)";
           }
       } 
-      // 2. JAM 22.00 - 22.59
-      else if (hour === 22) {
-          // Base 4km pertama: Rp 4.000
+      else if (hour === 22) { // 22:00
           fee += 4000; 
-          
           if (km > 4) {
               let sisa = km - 4;
-              // > 10km tarif 1000, 4-10 tarif 800
-              if (sisa > 6) { // 10 - 4 = 6 km kena 800
+              if (sisa > 6) { 
                   fee += 6 * 800;
-                  let sisaJauh = sisa - 6;
-                  fee += sisaJauh * 1000;
+                  fee += (sisa - 6) * 1000;
               } else {
                   fee += sisa * 800;
               }
           }
           label = "Malam (22:00)";
       }
-      // 3. JAM 23.00 - 23.59
-      else if (hour === 23) {
-          // Base 4km: Rp 5.000
+      else if (hour === 23) { // 23:00
           fee += 5000;
-          if (km > 4) {
-              let sisa = km - 4;
-              fee += sisa * 1000; // >4km: 1.000/km
-          }
+          if (km > 4) fee += (km - 4) * 1000;
           label = "Malam (23:00)";
       }
-      // 4. JAM 00.00 - 04.59 (Tengah Malam/Subuh)
-      // *Saya gabungkan jam 00 ke sini karena user skip 00, asumsi ikut tarif mahal*
-      else if (hour >= 0 && hour <= 4) {
-          // Base 4km: Rp 10.000
+      else if (hour >= 0 && hour <= 4) { // 00:00 - 04:59
           fee += 10000;
-          if (km > 4) {
-              let sisa = km - 4;
-              fee += sisa * 1500; // >4km: 1.500/km
-          }
+          if (km > 4) fee += (km - 4) * 1500;
           label = "Subuh (00-05)";
       }
-      // 5. JAM 05.00 - 05.59
-      else if (hour === 5) {
-          // Base 4km: Rp 5.000
+      else if (hour === 5) { // 05:00
           fee += 5000;
-          if (km > 4) {
-              let sisa = km - 4;
-              fee += sisa * 1000; // >4km: 1000/km
-          }
+          if (km > 4) fee += (km - 4) * 1000;
           label = "Pagi Buta (05:00)";
       }
-      // 6. JAM 06.00 - 06.59
-      else if (hour === 6) {
-          fee += 4000; // Flat +4.000
+      else if (hour === 6) { // 06:00
+          fee += 4000;
           label = "Pagi (06:00)";
       }
 
@@ -282,47 +321,41 @@
   }
 
   function hitung() {
-      // A. MODE KIRIM DATA
+      // MODE KIRIM
       if (btnHitung.classList.contains('ready-to-send')) {
           const h = hasilEl.innerText.replace(/[^0-9]/g, '');
-          const r = rincianEl.innerText.replace(/\n/g, " , ");
+          const r = Array.from(rincianEl.querySelectorAll('.rincian-row')).map(row => {
+             return row.querySelector('.rincian-label').innerText + ": " + row.querySelector('.rincian-val').innerText;
+          }).join(" , ");
+          
           tg.sendData(h + "|" + r + "|" + orderID);
           tg.close();
           return;
       }
 
-      // B. MODE HITUNG
+      // MODE HITUNG
       let tarif = 0;
       let breakdown = [];
       rincianEl.innerHTML = '';
+      rincianEl.style.display = 'none';
 
-      // 1. Jarak Dasar
+      // 1. Jarak & Base
       const km = parseFloat(el.jarak.value.replace(',', '.') || 0);
-      if (km <= 0) { alert("Masukkan Jarak Total (KM)"); return; }
+      if (km <= 0) { alert("Mohon isi Total Jarak"); return; }
       
       const base = hitungBase(km);
       tarif += base;
-      breakdown.push({ label: `Jarak Dasar (${km}km)`, val: base });
+      breakdown.push({ label: `Jarak (${km}km)`, val: base });
 
       // 2. Titik Tambahan
-      const qtyOn = parseInt(el.online.value || 0);
-      const qtyOff = parseInt(el.offline.value || 0);
-      
-      if(qtyOn > 0) {
-          const b = qtyOn * 4000; // Tarif Online: 4K
-          tarif += b; breakdown.push({ label: `Titik Online x${qtyOn}`, val: b });
-      }
-      if(qtyOff > 0) {
-          const b = qtyOff * 5000; // Tarif Offline: 5K
-          tarif += b; breakdown.push({ label: `Titik Offline x${qtyOff}`, val: b });
-      }
+      const qOn = parseInt(el.online.value || 0);
+      const qOff = parseInt(el.offline.value || 0);
+      if(qOn > 0) { const b=qOn*4000; tarif+=b; breakdown.push({label:`Titik Online x${qOn}`, val:b}); }
+      if(qOff > 0) { const b=qOff*5000; tarif+=b; breakdown.push({label:`Titik Offline x${qOff}`, val:b}); }
 
-      // 3. Logika Waktu (Kompleks)
+      // 3. Waktu (Malam)
       const now = new Date();
-      const hour = now.getHours();
-      // Debug Hour: const hour = 23; // Coba ubah ini manual untuk tes
-      
-      const nightData = getNightSurcharge(hour, km);
+      const nightData = getNightSurcharge(now.getHours(), km);
       if (nightData.amount > 0) {
           tarif += nightData.amount;
           breakdown.push({ label: nightData.name, val: nightData.amount });
@@ -331,86 +364,85 @@
       // 4. Cuaca
       const cuaca = document.querySelector('input[name="cuaca"]:checked').value;
       if (cuaca === 'hujan') {
-          // Flat 5000 untuk hujan
-          tarif += 5000;
-          breakdown.push({ label: 'Handling Hujan', val: 5000 });
+          tarif += 5000; breakdown.push({ label: 'Handling Hujan', val: 5000 });
       }
 
       // 5. Zona Luar
-      const zona = document.querySelector('input[name="zona"]:checked').value;
-      if (zona === 'luar') {
+      if (document.querySelector('input[name="zona"]:checked').value === 'luar') {
           const jz = parseFloat(el.zonaLuar.value || 0);
           if (jz > 0) {
-              const b = Math.max(2000, jz * 2000); // 2000 per km luar
+              const b = Math.max(2000, jz * 2000);
               tarif += b; breakdown.push({ label: `Luar Batas (${jz}km)`, val: b });
           }
       }
 
-      // 6. Belanja & Layanan
-      // Foto
-      if (el.foto.checked) { tarif+=3000; breakdown.push({label:'Jasa Foto Belanja', val:3000}); }
-      
-      // Item Belanja
-      const pB = parseInt(el.psBiasa.value || 0);
-      if(pB>0) { const b=pB*750; tarif+=b; breakdown.push({label:`Pasar Biasa (${pB})`, val:b}); }
-      
-      const pK = parseInt(el.psKhusus.value || 0);
-      if(pK>0) { const b=pK*1250; tarif+=b; breakdown.push({label:`Pasar Khusus (${pK})`, val:b}); }
-      
-      const mall = parseInt(el.mall.value || 0);
-      if(mall>0) { const b=mall*3500; tarif+=b; breakdown.push({label:`Mall (${mall})`, val:b}); }
-      
-      const indo = parseInt(el.indo.value || 0);
-      if(indo>0) { const b=indo*500; tarif+=b; breakdown.push({label:`Indomaret (${indo})`, val:b}); }
+      // 6. BELANJA (LOGIKA BARU)
+      const qStd = parseInt(el.std.value || 0);
+      const qDept = parseInt(el.dept.value || 0);
+      const qMall = parseInt(el.mall.value || 0);
 
-      // Lainnya
-      if (el.parkir.checked) { tarif+=2000; breakdown.push({label:'Parkir', val:2000}); }
+      if(qStd > 0) { const b=qStd*1000; tarif+=b; breakdown.push({label:`Pasar/Indo (${qStd})`, val:b}); }
+      if(qDept > 0) { const b=qDept*2000; tarif+=b; breakdown.push({label:`Dept. Store (${qDept})`, val:b}); }
+      if(qMall > 0) { const b=qMall*3500; tarif+=b; breakdown.push({label:`Mall (${qMall})`, val:b}); }
+
+      // 7. LAYANAN QTY (FOTO & PARKIR)
+      const qFoto = parseInt(el.foto.value || 0);
+      const qParkir = parseInt(el.parkir.value || 0);
+
+      if(qFoto > 0) { const b=qFoto*3000; tarif+=b; breakdown.push({label:`Sesi Foto x${qFoto}`, val:b}); }
+      if(qParkir > 0) { const b=qParkir*2000; tarif+=b; breakdown.push({label:`Parkir x${qParkir}`, val:b}); }
+
+      // 8. CHECKBOX SISANYA
       if (el.kfc.checked) { tarif+=2000; breakdown.push({label:'KFC/Mcd', val:2000}); }
       if (el.gacoan.checked) { tarif+=2000; breakdown.push({label:'Gacoan', val:2000}); }
-      if (el.rs.checked) { tarif+=2000; breakdown.push({label:'Rumah Sakit', val:2000}); }
+      if (el.rs.checked) { tarif+=2000; breakdown.push({label:'Masuk RS', val:2000}); }
       if (el.jalan.checked) { tarif+=5000; breakdown.push({label:'Jalan Rusak', val:5000}); }
 
-      // 7. Waktu Tunggu
+      // 9. Waktu Tunggu
       const w = parseInt(el.tunggu.value || 0);
       if (w > 9) {
-          const blocks = Math.ceil((w - 9) / 10);
-          const b = blocks * 2000;
-          tarif += b;
-          breakdown.push({ label: `Tunggu ${w} mnt`, val: b });
+          const b = Math.ceil((w - 9) / 10) * 2000;
+          tarif += b; breakdown.push({ label: `Tunggu ${w}m`, val: b });
       }
 
-      // Render
-      const finalPrice = Math.ceil(tarif / 1000) * 1000;
-      hasilEl.innerText = "Rp " + finalPrice.toLocaleString('id-ID');
+      // RENDER HASIL
+      const final = Math.ceil(tarif / 1000) * 1000;
+      hasilEl.innerText = "Rp " + final.toLocaleString('id-ID');
       
-      rincianEl.innerHTML = breakdown.map(x => 
-          `<div style="display:flex; justify-content:space-between;">
-              <span>${x.label}</span> <strong>Rp ${x.val.toLocaleString('id-ID')}</strong>
-           </div>`
-      ).join('');
+      // Render Rincian
+      if(breakdown.length > 0) {
+          rincianEl.style.display = 'block';
+          rincianEl.innerHTML = breakdown.map(x => 
+              `<div class="rincian-row">
+                  <span class="rincian-label">${x.label}</span>
+                  <span class="rincian-val">Rp ${x.val.toLocaleString('id-ID')}</span>
+               </div>`
+          ).join('');
+      }
 
-      // Ubah Tombol
+      // Update Tombol
       btnHitung.innerText = "KIRIM ONGKIR KE CHAT";
       btnHitung.classList.add('ready-to-send');
   }
 
   // Event Listeners
   btnHitung.addEventListener('click', hitung);
-
-  // Reset logic
-  const inputs = root.querySelectorAll('input');
-  inputs.forEach(i => i.addEventListener('input', () => {
+  const allInp = document.querySelectorAll('input');
+  allInp.forEach(i => i.addEventListener('input', () => {
       if (btnHitung.classList.contains('ready-to-send')) {
-          btnHitung.innerText = "CEK ONGKIR";
+          btnHitung.innerText = "HITUNG ONGKIR";
           btnHitung.classList.remove('ready-to-send');
+          hasilEl.innerText = "Rp -";
+          rincianEl.style.display = 'none';
       }
   }));
 
-  // Collapsible
-  const panel = document.getElementById('panel-opsi');
-  panel.querySelector('.panel-header').addEventListener('click', () => {
-      panel.classList.toggle('collapsed');
-      panel.querySelector('.panel-toggle').innerText = panel.classList.contains('collapsed') ? "Buka" : "Tutup";
+  // Panel Logic
+  const pHeader = document.querySelector('.panel-header');
+  const pContent = document.querySelector('.panel-content');
+  const pPanel = document.querySelector('.panel');
+  pHeader.addEventListener('click', () => {
+      pPanel.classList.toggle('open');
   });
 
 })();
