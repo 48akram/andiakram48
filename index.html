@@ -95,6 +95,7 @@
         .rincian-row { display: flex; justify-content: space-between; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dashed #e1e4e8; }
         .rincian-row:last-child { border-bottom: none; margin-bottom: 0; }
         .rincian-val { font-weight: 700; color: var(--text-main); }
+        .myFrame{width:100%;}
     </style>
 </head>
 <body>
@@ -104,7 +105,7 @@
         <h2>Hitung Ongkir</h2>
 
         <button class="map-toggle-btn" type="button" onclick="toggleMap()">📍 Lihat Peta Wilayah Tarif</button>
-        <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1bHr_0ezAlukVPCDiWSs22t6sSD-XAA8&ehbc=2E312F"></iframe>
+        <iframe class="myFrame" src="https://www.google.com/maps/d/u/0/embed?mid=1bHr_0ezAlukVPCDiWSs22t6sSD-XAA8&ehbc=2E312F"></iframe>
 
         <div class="form-group">
             <label>Tarif Dasar (Sesuai Wilayah Jemput) <span class="tandaku">*</span></label>
