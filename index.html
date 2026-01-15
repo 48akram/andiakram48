@@ -17,7 +17,7 @@
             --danger: #e03131;
         }
         
-        /* FIX INPUT MELEBAR: box-sizing border-box is key */
+        /* FIX INPUT MELEBAR */
         *, *::before, *::after { box-sizing: border-box; }
 
         body { margin: 0; padding: 0; background-color: var(--bg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -29,20 +29,21 @@
         /* --- TYPOGRAPHY --- */
         h2 { margin: 0 0 20px 0; font-size: 22px; text-align: center; color: var(--text-main); font-weight: 700; letter-spacing: -0.5px; }
         .section-title { margin-top: 25px; margin-bottom: 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #9aa5b1; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
-        
+        .helper { font-size: 11px; color: #8898aa; margin-top: 2px; }
+
         /* --- FORMS & INPUTS --- */
         .form-group { margin-bottom: 16px; width: 100%; }
         label { display: block; font-weight: 500; margin-bottom: 8px; color: var(--text-sub); font-size: 14px; }
         .tandaku { color: var(--danger); }
         
         /* Input & Select Styling */
-        input[type="number"], select {
-            width: 100%; /* Pastikan 100% dari container */
+        input[type="number"], input[type="text"], select {
+            width: 100%; 
             padding: 12px 14px; border-radius: 10px; border: 1px solid #dfe3e8; 
             font-size: 16px; background: #fff; transition: border 0.2s, box-shadow 0.2s;
             -moz-appearance: textfield; 
         }
-        input[type="number"]:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(36,118,247,0.1); }
+        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(36,118,247,0.1); }
 
         /* Grid Layout */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -70,7 +71,7 @@
         .panel-header { padding: 12px 15px; background: #fcfcfc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .panel-title-text { font-weight: 600; color: var(--text-main); font-size: 14px; }
         .panel-content { padding: 0 15px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }
-        .panel.open .panel-content { padding: 15px; max-height: 1000px; }
+        .panel.open .panel-content { padding: 15px; max-height: 1500px; } /* Increased height for new items */
 
         /* --- MAP CONTAINER --- */
         .map-toggle-btn {
@@ -95,7 +96,6 @@
         .rincian-row { display: flex; justify-content: space-between; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dashed #e1e4e8; }
         .rincian-row:last-child { border-bottom: none; margin-bottom: 0; }
         .rincian-val { font-weight: 700; color: var(--text-main); }
-        .myFrame{width:100%;}
     </style>
 </head>
 <body>
@@ -105,7 +105,7 @@
         <h2>Hitung Ongkir</h2>
 
         <button class="map-toggle-btn" type="button" onclick="toggleMap()">📍 Lihat Peta Wilayah Tarif</button>
-        <iframe class="map-frame" id="myMap" src="https://www.google.com/maps/d/u/0/embed?mid=1bHr_0ezAlukVPCDiWSs22t6sSD-XAA8&ehbc=2E312F"></iframe>
+        <iframe class="map-frame" id="myMap" src="https://www.google.com/maps/d/embed?mid=1bHr_0ezAlukVPCDiWSs22t6sSD-XAA8&ehbc=2E312F"></iframe>
 
         <div class="form-group">
             <label>Tarif Dasar (Sesuai Wilayah Jemput) <span class="tandaku">*</span></label>
@@ -182,12 +182,41 @@
                         <input id="qtyParkir" type="number" inputmode="numeric" placeholder="Kali Parkir">
                     </div>
                 </div>
-
+                
                 <div class="check-list" style="margin-top: 15px;">
                     <div class="check-item"><label><input id="cekKFC" type="checkbox"> KFC/Mcd (+2rb)</label></div>
                     <div class="check-item"><label><input id="cekGacoan" type="checkbox"> Gacoan (+2rb)</label></div>
                     <div class="check-item"><label><input id="cekRS" type="checkbox"> Masuk RS (+2rb)</label></div>
                     <div class="check-item"><label><input id="cekJalan" type="checkbox"> Jalan Rusak (+5rb)</label></div>
+                </div>
+
+                <div class="section-title">Muatan & Biaya Lain</div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Extra Hati-hati (x5rb)</label>
+                        <input id="itemFragile" type="number" inputmode="numeric" placeholder="Jml Barang">
+                        <div class="helper">Telur, Kue Tart, Kaca, dll.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Berat/Dus (x3rb)</label>
+                        <input id="itemBerat" type="number" inputmode="numeric" placeholder="Jml Dus">
+                        <div class="helper">Air Dus, Beras, Gas 3kg.</div>
+                    </div>
+                </div>
+
+                <div class="check-list" style="margin-bottom: 15px;">
+                    <div class="check-item">
+                        <label><input id="cekAngkat" type="checkbox"> Jasa Angkat ke Ruangan (+5rb)</label>
+                    </div>
+                </div>
+
+                <div class="form-group" style="background: #fff8f8; padding: 10px; border: 1px dashed #e03131; border-radius: 8px;">
+                    <label style="color: #e03131;">Tambahan Manual (Driver)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input id="customKet" type="text" placeholder="Ket. (misal: Bawa Penumpang)" style="flex: 2; border: 1px solid #e03131;">
+                        <input id="customHarga" type="number" inputmode="numeric" placeholder="Rp..." style="flex: 1; border: 1px solid #e03131;">
+                    </div>
                 </div>
             </div>
         </div>
@@ -228,7 +257,7 @@
   
   // Inputs
   const el = {
-      tarifDasar: document.getElementById('tarifDasar'), // Input Baru
+      tarifDasar: document.getElementById('tarifDasar'),
       jarak: document.getElementById('jarakTotal'),
       online: document.getElementById('titikOnline'),
       offline: document.getElementById('titikOffline'),
@@ -243,14 +272,20 @@
       kfc: document.getElementById('cekKFC'),
       gacoan: document.getElementById('cekGacoan'),
       rs: document.getElementById('cekRS'),
-      jalan: document.getElementById('cekJalan')
+      jalan: document.getElementById('cekJalan'),
+      // BARU
+      fragile: document.getElementById('itemFragile'),
+      berat: document.getElementById('itemBerat'),
+      angkat: document.getElementById('cekAngkat'),
+      customKet: document.getElementById('customKet'),
+      customVal: document.getElementById('customHarga')
   };
 
   // --- LOGIKA PERHITUNGAN ---
 
   function hitungFareByDistance(km) {
     let base = 0;
-    // RUMUS JARAK MURNI (Sesuai request sebelumnya)
+    // RUMUS JARAK MURNI
     if (km <= 2.0) base = 8000;
     else if (km <= 3.0) base = 10000;
     else if (km <= 4.0) base = 12000;
@@ -267,7 +302,7 @@
       let fee = 0;
       let label = "";
 
-      // LOGIKA MALAM (Tetap dipertahankan sesuai request "lainnya normal")
+      // LOGIKA MALAM
       if (hour >= 18 && hour <= 21) { 
           if (km > 4) {
              let sisa = km - 4;
@@ -337,21 +372,16 @@
 
       // 1. INPUT
       const km = parseFloat(el.jarak.value.replace(',', '.') || 0);
-      const baseSelected = parseInt(el.tarifDasar.value); // Nilai Dropdown (8K, 10K, dst)
+      const baseSelected = parseInt(el.tarifDasar.value); 
       
       if (km <= 0) { alert("Mohon isi Jarak Pengantaran"); return; }
       
       // 2. LOGIKA UTAMA: BANDINGKAN TARIF DASAR vs TARIF JARAK ASLI
       const fareByDist = hitungFareByDistance(km);
-      
-      // Kita ambil nilai TERTINGGI (Math.max)
-      // Jika Pilih Base 12K, tapi jarak cuma 1KM (8K) -> Kena 12K
-      // Jika Pilih Base 12K, tapi jarak 10KM (Mahal) -> Kena Harga Jarak
       let finalBaseFare = Math.max(baseSelected, fareByDist);
       
       tarif += finalBaseFare;
       
-      // Labeling untuk rincian agar jelas
       let labelBase = "";
       if (baseSelected > fareByDist) {
           labelBase = `Tarif Dasar Wilayah (Min. ${baseSelected/1000}k)`;
@@ -402,6 +432,34 @@
       if (el.gacoan.checked) { tarif+=2000; breakdown.push({label:'Gacoan', val:2000}); }
       if (el.rs.checked) { tarif+=2000; breakdown.push({label:'Masuk RS', val:2000}); }
       if (el.jalan.checked) { tarif+=5000; breakdown.push({label:'Jalan Rusak', val:5000}); }
+
+      // 9. MUATAN BERAT & CUSTOM (LOGIKA BARU)
+      // Fragile
+      const qFragile = parseInt(el.fragile.value || 0);
+      if(qFragile > 0) { 
+          const b = qFragile * 5000; 
+          tarif += b; 
+          breakdown.push({label:`Extra Hati-hati x${qFragile}`, val:b}); 
+      }
+      // Berat
+      const qBerat = parseInt(el.berat.value || 0);
+      if(qBerat > 0) { 
+          const b = qBerat * 3000; 
+          tarif += b; 
+          breakdown.push({label:`Muatan Berat x${qBerat}`, val:b}); 
+      }
+      // Angkat
+      if(el.angkat.checked) { 
+          tarif += 5000; 
+          breakdown.push({label:'Jasa Angkat Barang', val:5000}); 
+      }
+      // Custom Manual
+      const custVal = parseInt(el.customVal.value || 0);
+      const custKet = el.customKet.value.trim() || "Biaya Lainnya";
+      if(custVal > 0) {
+          tarif += custVal;
+          breakdown.push({label: custKet, val: custVal});
+      }
 
       // RENDER HASIL
       const final = Math.ceil(tarif / 1000) * 1000;
