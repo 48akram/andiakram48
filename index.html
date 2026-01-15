@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cek Ongkir Kurir</title>
+    <title>Cek Ongkir Kurir Base</title>
     <style>
         /* --- RESET & VARIABLES --- */
         :root {
@@ -16,6 +16,10 @@
             --bg: #f8f9fa;
             --danger: #e03131;
         }
+        
+        /* FIX INPUT MELEBAR: box-sizing border-box is key */
+        *, *::before, *::after { box-sizing: border-box; }
+
         body { margin: 0; padding: 0; background-color: var(--bg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
         
         /* --- LAYOUT UTAMA --- */
@@ -24,56 +28,56 @@
         
         /* --- TYPOGRAPHY --- */
         h2 { margin: 0 0 20px 0; font-size: 22px; text-align: center; color: var(--text-main); font-weight: 700; letter-spacing: -0.5px; }
-        h3 { font-size: 16px; margin: 0 0 10px 0; color: var(--text-main); font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        .helper { font-size: 12px; color: #8898aa; margin-top: 4px; line-height: 1.4; }
         .section-title { margin-top: 25px; margin-bottom: 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #9aa5b1; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
-
+        
         /* --- FORMS & INPUTS --- */
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-weight: 500; margin-bottom: 6px; color: var(--text-sub); font-size: 14px; }
+        .form-group { margin-bottom: 16px; width: 100%; }
+        label { display: block; font-weight: 500; margin-bottom: 8px; color: var(--text-sub); font-size: 14px; }
         .tandaku { color: var(--danger); }
         
-        /* Input Styling yang Nyaman di Jempol */
-        input[type="number"] {
-            width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #dfe3e8; 
+        /* Input & Select Styling */
+        input[type="number"], select {
+            width: 100%; /* Pastikan 100% dari container */
+            padding: 12px 14px; border-radius: 10px; border: 1px solid #dfe3e8; 
             font-size: 16px; background: #fff; transition: border 0.2s, box-shadow 0.2s;
-            -moz-appearance: textfield; /* Hilangkan spinner di Firefox */
+            -moz-appearance: textfield; 
         }
-        input[type="number"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(36,118,247,0.1); }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"]:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(36,118,247,0.1); }
 
         /* Grid Layout */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
         /* --- PILIHAN (RADIO & CHECKBOX) --- */
         .radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
-        .radio-card {
-            flex: 1; min-width: 120px; position: relative;
-        }
+        .radio-card { flex: 1; min-width: 120px; position: relative; }
         .radio-card input { position: absolute; opacity: 0; cursor: pointer; }
         .radio-card label {
             display: flex; align-items: center; justify-content: center; gap: 6px;
             padding: 10px; background: #f4f6f8; border: 1px solid transparent; border-radius: 8px;
             cursor: pointer; font-weight: 600; font-size: 14px; color: var(--text-sub); transition: all 0.2s;
         }
-        /* State Aktif */
         .radio-card input:checked + label { background: #ebf4ff; color: var(--primary); border-color: var(--primary); }
 
         /* Checkbox List Styling */
         .check-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .check-item label { 
             display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-weight: 500; 
-            padding: 8px; border-radius: 6px; hover: background: #f9f9f9;
+            padding: 8px; border-radius: 6px; 
         }
 
         /* --- COLLAPSIBLE PANEL --- */
         .panel { background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-top: 15px; }
         .panel-header { padding: 12px 15px; background: #fcfcfc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .panel-title-text { font-weight: 600; color: var(--text-main); font-size: 14px; }
-        .panel-toggle-icon { font-size: 12px; color: var(--text-sub); background: #eef2f7; padding: 4px 8px; border-radius: 6px; }
         .panel-content { padding: 0 15px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }
         .panel.open .panel-content { padding: 15px; max-height: 1000px; }
+
+        /* --- MAP CONTAINER --- */
+        .map-toggle-btn {
+            background: #eef2f7; color: var(--text-sub); border: none; padding: 8px 12px; 
+            border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 10px; width: 100%;
+        }
+        .map-frame { width: 100%; height: 300px; border: 0; border-radius: 8px; margin-bottom: 15px; display: none; }
 
         /* --- BUTTON & RESULT --- */
         .bottom-action { margin-top: 25px; padding-top: 20px; border-top: 2px dashed #eef2f7; }
@@ -90,13 +94,7 @@
         .rincian-box { margin-top: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; font-size: 14px; color: var(--text-sub); }
         .rincian-row { display: flex; justify-content: space-between; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dashed #e1e4e8; }
         .rincian-row:last-child { border-bottom: none; margin-bottom: 0; }
-        .rincian-label { font-size: 13px; }
         .rincian-val { font-weight: 700; color: var(--text-main); }
-
-        @media (max-width: 480px) {
-            .grid-2 { grid-template-columns: 1fr; } /* Stack input di HP kecil */
-            .check-list { grid-template-columns: 1fr; }
-        }
     </style>
 </head>
 <body>
@@ -105,8 +103,24 @@
     <div class="container">
         <h2>Hitung Ongkir</h2>
 
+        <button class="map-toggle-btn" type="button" onclick="toggleMap()">📍 Lihat Peta Wilayah Tarif</button>
+        <iframe class="map-frame" id="myMap" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127504.536069008!2d119.5775439!3d-3.7979603!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2d944c6806520df5%3A0x3030bfbcaf773a0!2sPinrang%2C%20Kabupaten%20Pinrang%2C%20Sulawesi%20Selatan!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid"></iframe>
+
         <div class="form-group">
-            <label>Total Jarak (KM) <span class="tandaku">*</span></label>
+            <label>Tarif Dasar (Sesuai Wilayah Jemput) <span class="tandaku">*</span></label>
+            <select id="tarifDasar">
+                <option value="8000">Rp 8.000 (Zona 0-2 KM)</option>
+                <option value="10000">Rp 10.000 (Zona 3 KM)</option>
+                <option value="12000">Rp 12.000 (Zona 4 KM)</option>
+                <option value="14000">Rp 14.000 (Zona 5 KM)</option>
+                <option value="16000">Rp 16.000 (Zona 6 KM)</option>
+                <option value="18000">Rp 18.000 (Zona 7 KM)</option>
+                <option value="20000">Rp 20.000 (Zona Jauh)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Jarak Pengantaran (KM) <span class="tandaku">*</span></label>
             <input id="jarakTotal" type="number" step="0.1" inputmode="decimal" placeholder="0.0" style="font-size: 20px; font-weight: bold; color: #2476f7;">
         </div>
 
@@ -121,29 +135,7 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label>Waktu Tunggu (Menit)</label>
-            <input id="waktuTunggu" type="number" inputmode="numeric" placeholder="Gratis 9 menit awal">
-        </div>
-
-        <div class="section-title">Kondisi</div>
-        
-        <div class="form-group">
-            <label>Lokasi Jemput</label>
-            <div class="radio-group">
-                <div class="radio-card">
-                    <input type="radio" name="zona" value="0" id="z_kota" checked>
-                    <label for="z_kota">Dalam Kota</label>
-                </div>
-                <div class="radio-card">
-                    <input type="radio" name="zona" value="luar" id="z_luar">
-                    <label for="z_luar">Luar Batas (+)</label>
-                </div>
-            </div>
-            <input id="jarakZonaLuar" type="number" inputmode="decimal" placeholder="Jarak dari batas kota (KM)" style="display:none; margin-top:10px;">
-        </div>
-
-        <div class="form-group">
+        <div class="form-group" style="margin-top: 20px;">
             <label>Cuaca</label>
             <div class="radio-group">
                 <div class="radio-card">
@@ -160,7 +152,7 @@
         <div class="panel" id="panel-extra">
             <div class="panel-header">
                 <span class="panel-title-text">🛒 Jasa Belanja & Layanan Lain</span>
-                <span class="panel-toggle-icon">Buka/Tutup</span>
+                <span style="font-size: 12px; color: #999;">Buka/Tutup</span>
             </div>
             <div class="panel-content">
                 <div class="grid-2" style="margin-bottom: 15px;">
@@ -212,6 +204,16 @@
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
+    // --- MAP TOGGLE ---
+    function toggleMap() {
+        const map = document.getElementById('myMap');
+        if (map.style.display === "none" || map.style.display === "") {
+            map.style.display = "block";
+        } else {
+            map.style.display = "none";
+        }
+    }
+
 (function(){
   const tg = window.Telegram.WebApp;
   tg.expand();
@@ -225,36 +227,29 @@
   
   // Inputs
   const el = {
+      tarifDasar: document.getElementById('tarifDasar'), // Input Baru
       jarak: document.getElementById('jarakTotal'),
       online: document.getElementById('titikOnline'),
       offline: document.getElementById('titikOffline'),
-      zonaLuar: document.getElementById('jarakZonaLuar'),
-      tunggu: document.getElementById('waktuTunggu'),
-      // Belanja (Baru)
+      // Belanja 
       std: document.getElementById('itemStd'),
       dept: document.getElementById('itemDept'),
       mall: document.getElementById('itemMall'),
-      // Layanan Qty (Baru)
+      // Layanan Qty 
       foto: document.getElementById('qtyFoto'),
       parkir: document.getElementById('qtyParkir'),
-      // Checkbox Sisa
+      // Checkbox
       kfc: document.getElementById('cekKFC'),
       gacoan: document.getElementById('cekGacoan'),
       rs: document.getElementById('cekRS'),
       jalan: document.getElementById('cekJalan')
   };
 
-  // Toggle Zona Input
-  const zonaRadios = document.getElementsByName('zona');
-  zonaRadios.forEach(r => r.addEventListener('change', () => {
-      el.zonaLuar.style.display = (r.value === 'luar') ? 'block' : 'none';
-  }));
-
   // --- LOGIKA PERHITUNGAN ---
 
-  function hitungBase(km) {
+  function hitungFareByDistance(km) {
     let base = 0;
-    // 0-2km: 8rb, lalu naik bertahap
+    // RUMUS JARAK MURNI (Sesuai request sebelumnya)
     if (km <= 2.0) base = 8000;
     else if (km <= 3.0) base = 10000;
     else if (km <= 4.0) base = 12000;
@@ -271,11 +266,11 @@
       let fee = 0;
       let label = "";
 
-      // LOGIKA MALAM LENGKAP (Sesuai Request Sebelumnya)
-      if (hour >= 18 && hour <= 21) { // 18-21:59
+      // LOGIKA MALAM (Tetap dipertahankan sesuai request "lainnya normal")
+      if (hour >= 18 && hour <= 21) { 
           if (km > 4) {
              let sisa = km - 4;
-             if (sisa > 11) { // > 15km total
+             if (sisa > 11) { 
                  fee += 11 * 800; 
                  fee += (sisa - 11) * 1000;
              } else {
@@ -284,7 +279,7 @@
              label = "Malam (18-22)";
           }
       } 
-      else if (hour === 22) { // 22:00
+      else if (hour === 22) { 
           fee += 4000; 
           if (km > 4) {
               let sisa = km - 4;
@@ -297,22 +292,22 @@
           }
           label = "Malam (22:00)";
       }
-      else if (hour === 23) { // 23:00
+      else if (hour === 23) { 
           fee += 5000;
           if (km > 4) fee += (km - 4) * 1000;
           label = "Malam (23:00)";
       }
-      else if (hour >= 0 && hour <= 4) { // 00:00 - 04:59
+      else if (hour >= 0 && hour <= 4) { 
           fee += 10000;
           if (km > 4) fee += (km - 4) * 1500;
           label = "Subuh (00-05)";
       }
-      else if (hour === 5) { // 05:00
+      else if (hour === 5) { 
           fee += 5000;
           if (km > 4) fee += (km - 4) * 1000;
           label = "Pagi Buta (05:00)";
       }
-      else if (hour === 6) { // 06:00
+      else if (hour === 6) { 
           fee += 4000;
           label = "Pagi (06:00)";
       }
@@ -339,21 +334,39 @@
       rincianEl.innerHTML = '';
       rincianEl.style.display = 'none';
 
-      // 1. Jarak & Base
+      // 1. INPUT
       const km = parseFloat(el.jarak.value.replace(',', '.') || 0);
-      if (km <= 0) { alert("Mohon isi Total Jarak"); return; }
+      const baseSelected = parseInt(el.tarifDasar.value); // Nilai Dropdown (8K, 10K, dst)
       
-      const base = hitungBase(km);
-      tarif += base;
-      breakdown.push({ label: `Jarak (${km}km)`, val: base });
+      if (km <= 0) { alert("Mohon isi Jarak Pengantaran"); return; }
+      
+      // 2. LOGIKA UTAMA: BANDINGKAN TARIF DASAR vs TARIF JARAK ASLI
+      const fareByDist = hitungFareByDistance(km);
+      
+      // Kita ambil nilai TERTINGGI (Math.max)
+      // Jika Pilih Base 12K, tapi jarak cuma 1KM (8K) -> Kena 12K
+      // Jika Pilih Base 12K, tapi jarak 10KM (Mahal) -> Kena Harga Jarak
+      let finalBaseFare = Math.max(baseSelected, fareByDist);
+      
+      tarif += finalBaseFare;
+      
+      // Labeling untuk rincian agar jelas
+      let labelBase = "";
+      if (baseSelected > fareByDist) {
+          labelBase = `Tarif Dasar Wilayah (Min. ${baseSelected/1000}k)`;
+      } else {
+          labelBase = `Tarif Jarak (${km}km)`;
+      }
+      breakdown.push({ label: labelBase, val: finalBaseFare });
 
-      // 2. Titik Tambahan
+
+      // 3. Titik Tambahan
       const qOn = parseInt(el.online.value || 0);
       const qOff = parseInt(el.offline.value || 0);
       if(qOn > 0) { const b=qOn*4000; tarif+=b; breakdown.push({label:`Titik Online x${qOn}`, val:b}); }
       if(qOff > 0) { const b=qOff*5000; tarif+=b; breakdown.push({label:`Titik Offline x${qOff}`, val:b}); }
 
-      // 3. Waktu (Malam)
+      // 4. Waktu (Malam)
       const now = new Date();
       const nightData = getNightSurcharge(now.getHours(), km);
       if (nightData.amount > 0) {
@@ -361,22 +374,13 @@
           breakdown.push({ label: nightData.name, val: nightData.amount });
       }
 
-      // 4. Cuaca
+      // 5. Cuaca
       const cuaca = document.querySelector('input[name="cuaca"]:checked').value;
       if (cuaca === 'hujan') {
           tarif += 5000; breakdown.push({ label: 'Handling Hujan', val: 5000 });
       }
 
-      // 5. Zona Luar
-      if (document.querySelector('input[name="zona"]:checked').value === 'luar') {
-          const jz = parseFloat(el.zonaLuar.value || 0);
-          if (jz > 0) {
-              const b = Math.max(2000, jz * 2000);
-              tarif += b; breakdown.push({ label: `Luar Batas (${jz}km)`, val: b });
-          }
-      }
-
-      // 6. BELANJA (LOGIKA BARU)
+      // 6. BELANJA
       const qStd = parseInt(el.std.value || 0);
       const qDept = parseInt(el.dept.value || 0);
       const qMall = parseInt(el.mall.value || 0);
@@ -385,67 +389,9 @@
       if(qDept > 0) { const b=qDept*2000; tarif+=b; breakdown.push({label:`Dept. Store (${qDept})`, val:b}); }
       if(qMall > 0) { const b=qMall*3500; tarif+=b; breakdown.push({label:`Mall (${qMall})`, val:b}); }
 
-      // 7. LAYANAN QTY (FOTO & PARKIR)
+      // 7. LAYANAN QTY 
       const qFoto = parseInt(el.foto.value || 0);
       const qParkir = parseInt(el.parkir.value || 0);
 
       if(qFoto > 0) { const b=qFoto*3000; tarif+=b; breakdown.push({label:`Sesi Foto x${qFoto}`, val:b}); }
-      if(qParkir > 0) { const b=qParkir*2000; tarif+=b; breakdown.push({label:`Parkir x${qParkir}`, val:b}); }
-
-      // 8. CHECKBOX SISANYA
-      if (el.kfc.checked) { tarif+=2000; breakdown.push({label:'KFC/Mcd', val:2000}); }
-      if (el.gacoan.checked) { tarif+=2000; breakdown.push({label:'Gacoan', val:2000}); }
-      if (el.rs.checked) { tarif+=2000; breakdown.push({label:'Masuk RS', val:2000}); }
-      if (el.jalan.checked) { tarif+=5000; breakdown.push({label:'Jalan Rusak', val:5000}); }
-
-      // 9. Waktu Tunggu
-      const w = parseInt(el.tunggu.value || 0);
-      if (w > 9) {
-          const b = Math.ceil((w - 9) / 10) * 2000;
-          tarif += b; breakdown.push({ label: `Tunggu ${w}m`, val: b });
-      }
-
-      // RENDER HASIL
-      const final = Math.ceil(tarif / 1000) * 1000;
-      hasilEl.innerText = "Rp " + final.toLocaleString('id-ID');
-      
-      // Render Rincian
-      if(breakdown.length > 0) {
-          rincianEl.style.display = 'block';
-          rincianEl.innerHTML = breakdown.map(x => 
-              `<div class="rincian-row">
-                  <span class="rincian-label">${x.label}</span>
-                  <span class="rincian-val">Rp ${x.val.toLocaleString('id-ID')}</span>
-               </div>`
-          ).join('');
-      }
-
-      // Update Tombol
-      btnHitung.innerText = "KIRIM ONGKIR KE CHAT";
-      btnHitung.classList.add('ready-to-send');
-  }
-
-  // Event Listeners
-  btnHitung.addEventListener('click', hitung);
-  const allInp = document.querySelectorAll('input');
-  allInp.forEach(i => i.addEventListener('input', () => {
-      if (btnHitung.classList.contains('ready-to-send')) {
-          btnHitung.innerText = "HITUNG ONGKIR";
-          btnHitung.classList.remove('ready-to-send');
-          hasilEl.innerText = "Rp -";
-          rincianEl.style.display = 'none';
-      }
-  }));
-
-  // Panel Logic
-  const pHeader = document.querySelector('.panel-header');
-  const pContent = document.querySelector('.panel-content');
-  const pPanel = document.querySelector('.panel');
-  pHeader.addEventListener('click', () => {
-      pPanel.classList.toggle('open');
-  });
-
-})();
-</script>
-</body>
-</html>
+      if(qParkir
