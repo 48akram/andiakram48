@@ -394,4 +394,56 @@
       const qParkir = parseInt(el.parkir.value || 0);
 
       if(qFoto > 0) { const b=qFoto*3000; tarif+=b; breakdown.push({label:`Sesi Foto x${qFoto}`, val:b}); }
-      if(qParkir
+      if(qParkir > 0) { const b=qParkir*2000; tarif+=b; breakdown.push({label:`Parkir x${qParkir}`, val:b}); }
+
+      // 8. CHECKBOX SISANYA
+      if (el.kfc.checked) { tarif+=2000; breakdown.push({label:'KFC/Mcd', val:2000}); }
+      if (el.gacoan.checked) { tarif+=2000; breakdown.push({label:'Gacoan', val:2000}); }
+      if (el.rs.checked) { tarif+=2000; breakdown.push({label:'Masuk RS', val:2000}); }
+      if (el.jalan.checked) { tarif+=5000; breakdown.push({label:'Jalan Rusak', val:5000}); }
+
+      // RENDER HASIL
+      const final = Math.ceil(tarif / 1000) * 1000;
+      hasilEl.innerText = "Rp " + final.toLocaleString('id-ID');
+      
+      // Render Rincian
+      if(breakdown.length > 0) {
+          rincianEl.style.display = 'block';
+          rincianEl.innerHTML = breakdown.map(x => 
+              `<div class="rincian-row">
+                  <span class="rincian-label">${x.label}</span>
+                  <span class="rincian-val">Rp ${x.val.toLocaleString('id-ID')}</span>
+               </div>`
+          ).join('');
+      }
+
+      // Update Tombol
+      btnHitung.innerText = "KIRIM ONGKIR KE CHAT";
+      btnHitung.classList.add('ready-to-send');
+  }
+
+  // Event Listeners
+  btnHitung.addEventListener('click', hitung);
+  
+  // Reset jika input berubah
+  const allInputs = document.querySelectorAll('input, select');
+  allInputs.forEach(i => i.addEventListener('input', () => {
+      if (btnHitung.classList.contains('ready-to-send')) {
+          btnHitung.innerText = "HITUNG ONGKIR";
+          btnHitung.classList.remove('ready-to-send');
+          hasilEl.innerText = "Rp -";
+          rincianEl.style.display = 'none';
+      }
+  }));
+
+  // Panel Logic
+  const pHeader = document.querySelector('.panel-header');
+  const pPanel = document.querySelector('.panel');
+  pHeader.addEventListener('click', () => {
+      pPanel.classList.toggle('open');
+  });
+
+})();
+</script>
+</body>
+</html>
