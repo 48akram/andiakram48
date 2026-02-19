@@ -191,30 +191,21 @@
                 </div>
                 
                 <div class="check-list" style="margin-top: 15px;">
-                    <div class="check-item"><label><input id="cekKFC" type="checkbox"> KFC/Mcd (+2rb)</label></div>
-                    <div class="check-item"><label><input id="cekGacoan" type="checkbox"> Gacoan (+2rb)</label></div>
                     <div class="check-item"><label><input id="cekRS" type="checkbox"> Masuk RS (+2rb)</label></div>
-                    <div class="check-item"><label><input id="cekJalan" type="checkbox"> Jalan Rusak (+5rb)</label></div>
                 </div>
 
                 <div class="section-title">Muatan & Biaya Lain</div>
 
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Extra Hati-hati (x5rb)</label>
-                        <input id="itemFragile" type="number" inputmode="numeric" placeholder="Jml Barang">
-                        <div class="helper">Telur, Kue Tart, Kaca, dll.</div>
-                    </div>
-                    <div class="form-group">
-                        <label>Berat/Dus (x3rb)</label>
-                        <input id="itemBerat" type="number" inputmode="numeric" placeholder="Jml Dus">
-                        <div class="helper">Air Dus, Beras, Gas 3kg.</div>
-                    </div>
+                <div class="form-group">
+                    <label>Berat/Dus (x3rb)</label>
+                    <input id="itemBerat" type="number" inputmode="numeric" placeholder="Jml Dus">
+                    <div class="helper">Air Dus, Beras, Gas 3kg.</div>
                 </div>
 
                 <div class="check-list" style="margin-bottom: 15px;">
                     <div class="check-item">
-                        <label><input id="cekAngkat" type="checkbox"> Jasa Angkat ke Ruangan (+5rb)</label>
+                        <label><input id="cekFragile" type="checkbox"> Extra Hati-hati (+5rb)</label>
+                        <div class="helper" style="margin-left: 28px; margin-top: 4px;">Telur, Kue Tart, Kaca, dll.</div>
                     </div>
                 </div>
 
@@ -277,14 +268,10 @@
       foto: document.getElementById('qtyFoto'),
       parkir: document.getElementById('qtyParkir'),
       // Checkbox
-      kfc: document.getElementById('cekKFC'),
-      gacoan: document.getElementById('cekGacoan'),
       rs: document.getElementById('cekRS'),
-      jalan: document.getElementById('cekJalan'),
       // Muatan
-      fragile: document.getElementById('itemFragile'),
+      fragile: document.getElementById('cekFragile'),
       berat: document.getElementById('itemBerat'),
-      angkat: document.getElementById('cekAngkat'),
       customKet: document.getElementById('customKet'),
       customVal: document.getElementById('customHarga')
   };
@@ -449,18 +436,13 @@
       if(qParkir > 0) { const b=qParkir*2000; tarif+=b; breakdown.push({label:`Parkir x${qParkir}`, val:b}); }
 
       // 8. CHECKBOX SISANYA
-      if (el.kfc.checked) { tarif+=2000; breakdown.push({label:'KFC/Mcd', val:2000}); }
-      if (el.gacoan.checked) { tarif+=2000; breakdown.push({label:'Gacoan', val:2000}); }
       if (el.rs.checked) { tarif+=2000; breakdown.push({label:'Masuk RS', val:2000}); }
-      if (el.jalan.checked) { tarif+=5000; breakdown.push({label:'Jalan Rusak', val:5000}); }
 
       // 9. MUATAN BERAT & CUSTOM
-      // Fragile
-      const qFragile = parseInt(el.fragile.value || 0);
-      if(qFragile > 0) { 
-          const b = qFragile * 5000; 
-          tarif += b; 
-          breakdown.push({label:`Extra Hati-hati x${qFragile}`, val:b}); 
+      // Fragile (Sudah jadi checkbox)
+      if(el.fragile.checked) { 
+          tarif += 5000; 
+          breakdown.push({label:'Extra Hati-hati', val:5000}); 
       }
       // Berat
       const qBerat = parseInt(el.berat.value || 0);
@@ -469,11 +451,7 @@
           tarif += b; 
           breakdown.push({label:`Muatan Berat x${qBerat}`, val:b}); 
       }
-      // Angkat
-      if(el.angkat.checked) { 
-          tarif += 5000; 
-          breakdown.push({label:'Jasa Angkat Barang', val:5000}); 
-      }
+
       // Custom Manual
       const custVal = parseInt(el.customVal.value || 0);
       const custKet = el.customKet.value.trim() || "Biaya Lainnya";
