@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kontrak Mitra Driver</title>
+    <title>Kontrak Driver Driver</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f3f4f6; padding: 20px; color: #1f2937; }
@@ -48,7 +48,7 @@
 <body>
 
 <div class="container">
-    <h2>📋 Registrasi Mitra</h2>
+    <h2>📋 Registrasi Driver</h2>
     <p class="subtitle">Lengkapi data diri dan alamat domisili Anda.</p>
 
     <div class="form-group">
@@ -64,6 +64,11 @@
     <div class="form-group">
         <label class="required">Nomor WhatsApp Aktif</label>
         <input type="tel" id="wa" placeholder="08xxxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        <div class="contract-box">
+            1. Nomor WhatsApp yang digunakan wajib aktif dan dapat dihubungi.<br>
+            2. Driver tidak diperkenankan menggunakan foto profil atau bio WhatsApp yang mengandung unsur promosi kurir lain / komunitas lain.<br>
+            3. Akun WhatsApp tidak boleh digunakan sebagai media promosi pribadi atau pihak lain yang dapat menimbulkan konflik kepentingan.
+        </div>
     </div>
 
     <div class="form-group">
@@ -119,18 +124,32 @@
         <textarea id="alamatDetail" rows="2" placeholder="Nama Jalan, Nomor Rumah, RT/RW..."></textarea>
     </div>
 
-    <label>📜 Syarat & Ketentuan Mitra</label>
+    <label>📜 Syarat & Ketentuan Driver</label>
     <div class="contract-box">
         <strong>PASAL 1: KEJUJURAN</strong><br>
-        1. Mitra wajib jujur dalam menjalankan tugas pengantaran.<br>
-        2. Dilarang memanipulasi harga ongkir kepada pelanggan.<br><br>
+        1. Driver wajib jujur dalam menjalankan tugas pengantaran.<br>
+        1. Dilarang memanipulasi harga ongkir kepada pelanggan.<br><br>
+
+        <strong></strong>PASAL 2: KETENTUAN DRIVER</strong><br>
+        1. Driver tidak sedang terikat secara eksklusif dengan komunitas/kelompok kurir tertentu. Pengecualian diperbolehkan untuk platform seperti Grab/Gojek selama bersifat fleksibel (on-bid/non-eksklusif).
+        2. Driver <b>tidak diperkenankan menjalankan atau menerima order lain</b> (termasuk Grab/Gojek atau japri) <b>selama sedang memproses order dari sistem,</b> guna menjaga fokus dan kualitas layanan.
+        3. Driver dilarang menerima order japri dari <b>pelanggan yang terdaftar dalam sistem/database.</b>
+        4. Order dari pelanggan pribadi di luar database diperbolehkan, <b>selama tidak mengganggu order dari sistem.</b>
+        5. <b>Driver wajib memprioritaskan order dari sistem.</b> Dilarang mendahulukan atau mengalihkan prioritas ke order lain yang masuk setelah order sistem diterima.
+
+        <strong>PASAL 3: SISTEM ORDER</strong><br>
+        <b>1. Seluruh order WAJIB melalui sistem resmi.</b><br>
+        2. Driver dilarang menerima order langsung (jalur pribadi/japri) dari pelanggan.<br>
+        3. Jika pelanggan menghubungi langsung, Driver wajib mengarahkan pelanggan untuk melakukan pemesanan melalui sistem atau melalui Admin.<br>
+        4. Pengecualian hanya berlaku jika Admin tidak memberikan respon dalam waktu <b>±3 menit,</b> maka Driver diperbolehkan mengambil order tersebut dengan tetap melaporkan ke Admin.<br><br>
         
-        <strong>PASAL 2: SANKSI & DENDA</strong><br>
-        1. Jika terbukti mencuri barang/uang, Mitra bersedia dilaporkan ke pihak berwajib dan didenda 10x lipat nilai barang.<br>
-        2. Membatalkan order sepihak >3x tanpa alasan jelas = Suspend Akun.<br>
-        3. Pelanggaran kode etik berat dikenakan denda administrasi Rp 500.000.<br><br>
+        <strong>PASAL 4: SANKSI & DENDA</strong><br>
+        1. Jika terbukti mencuri barang/uang, Driver bersedia dilaporkan ke pihak berwajib dan didenda <b>10x lipat nilai barang.</b><br>
+        2. Membatalkan order sepihak >3x tanpa alasan jelas = <b>Akun dibatasi.</b><br>
+        3. Menerima order di luar sistem tanpa izin akan dikenakan sanksi sesuai kebijakan Admin.<br>
+        4. Pelanggaran kode etik berat akan dikenakan sanksi <b>pemberhentian sebagai Driver tanpa kompensasi.</b><br><br>
         
-        <strong>PASAL 3: PERSETUJUAN</strong><br>
+        <strong>PASAL 5: PERSETUJUAN</strong><br>
         Dengan mencentang kotak di bawah, saya menyatakan data yang saya isi adalah BENAR dan saya siap menerima konsekuensi hukum apabila melanggar perjanjian ini.
     </div>
 
@@ -159,14 +178,14 @@
         "Kecamatan Matirro Sompe": ["Kelurahan Langnga", "Kelurahan Pallameang", "Desa Massulowalie", "Desa Mattombong", "Desa Mattongang Tongang", "Desa Patobong", "Desa Samaenre", "Desa Mattirotasi", "Desa Siwolong Polong"],
         "Kecamatan Suppa": ["Kelurahan Watang Suppa", "Kelurahan Tellumpanua", "Desa Lero", "Desa Watang Pulu", "Desa Maritengngae", "Desa Tasiwalie", "Desa Wiringtasi", "Desa Lotang Salo", "Desa Ujung Labuang", "Desa Polewali"],
         "Kecamatan Mattiro Bulu": ["Kelurahan Manarang", "Kelurahan Padaidi", "Desa Pananrang", "Desa Padakkalawa", "Desa Marannu", "Desa Alitta", "Desa Padaelo", "Desa Bunga", "Desa Makkawaru"],
-        "Kecamatan Watang Sawito": ["Kelurahan Jaya", "Kelurahan Sawito", "Kelurahan Maccoralaie", "Kelurahan Penrang", "Kelurahan Salo", "Kelurahan Bentengnge", "Kelurahan Sipatokkong", "Kelurahan Siparappe"],
+        "Kecamatan Watang Sawitto": ["Kelurahan Jaya", "Kelurahan Sawitto", "Kelurahan Maccorawalie", "Kelurahan Penrang", "Kelurahan Salo", "Kelurahan Bentengnge", "Kelurahan Sipatokkong", "Kelurahan Siparappe"],
         "Kecamatan Patampanua": ["Kelurahan Benteng", "Kelurahan Teppo", "Kelurahan Tonyamang", "Kelurahan Maccirinna", "Desa Leppangang", "Desa Malimpung", "Desa Mattiroade", "Desa Sipatuo", "Desa Padangloang", "Desa Pincara", "Desa Masolo"],
         "Kecamatan Duampanua": ["Kelurahan Pekkabata", "Kelurahan Tatae", "Kelurahan Lampa", "Kelurahan Data", "Kelurahan Bittoeng", "Desa Kaballangan", "Desa Paria", "Desa Kaliang", "Desa Battusawe", "Desa Maroneng", "Desa Katomporang", "Desa Bungi", "Desa Massewae", "Desa Bababinanga", "Desa Barugae"],
         "Kecamatan Lembang": ["Kelurahan Taddokong", "Kelurahan Betteng", "Desa Binanga Karaeng", "Desa Rajang", "Desa Letta", "Desa Ulusaddang", "Desa Suppirang", "Desa Basseang", "Desa Kariango", "Desa Benteng Paremba", "Desa Pakeng", "Desa Lembang Mesakada", "Desa Sali Sali", "Desa Sabbang Paru", "Desa Bakaru", "Desa Pangaparang"],
         "Kecamatan Cempa": ["Kelurahan Cempa", "Desa Mangki", "Desa Matunru Tunrue", "Desa Sikkuale", "Desa Tadangpalie", "Desa Salipolo", "Desa Tanra Tuo"],
         "Kecamatan Tiroang": ["Kelurahan Pammase", "Kelurahan Marawi", "Kelurahan Pakkie", "Kelurahan Tiroang", "Kelurahan Mattiro Deceng"],
         "Kecamatan Lansirang": ["Kelurahan Lansirang", "Desa Samaulue", "Desa Mallongi-longi", "Desa Amassangeng", "Desa Barang Palie", "Desa Waetuoe", "Desa Lerang"],
-        "Kecamatan Paleteang": ["Kelurahan Pacongang", "Kelurahan Macinnae", "Kelurahan Temmassarangnge", "Kelurahan Mamminasae", "Kelurahan Laleng Bata", "Kelurahan Benteng Sawito"],
+        "Kecamatan Paleteang": ["Kelurahan Pacongang", "Kelurahan Macinnae", "Kelurahan Temmassarangnge", "Kelurahan Mamminasae", "Kelurahan Laleng Bata", "Kelurahan Benteng Sawitto"],
         "Kecamatan Batu Lappa": ["Desa Batu Lappa", "Kelurahan Kassa", "Desa Tapporang", "Desa Kaseralau", "Desa Watang Kassa"]
     };
 
